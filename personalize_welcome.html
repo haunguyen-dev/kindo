@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindo - Chào mừng cá nhân hóa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5; 
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+        }
+
+        .device-frame {
+            width: 100%;
+            max-width: 414px; 
+            height: 100vh;
+            max-height: 896px; 
+            background-color: #FEFEFE; 
+            position: relative;
+            overflow: hidden; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: space-between; 
+            border-radius: 38px; 
+            padding: 40px 20px 30px 20px; 
+            box-sizing: border-box;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 350px; 
+            flex-grow: 1; 
+            justify-content: center; 
+        }
+        
+        .speech-bubble-container {
+            position: relative;
+            margin-bottom: 30px; 
+            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.12)); 
+        }
+
+        .speech-bubble {
+            background-color: #fafafa; 
+            padding: 20px 24px;
+            border-radius: 20px; 
+            position: relative;
+            max-width: 300px;
+        }
+
+        .speech-bubble::after { 
+            content: "";
+            position: absolute;
+            bottom: -15px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid #fafafa; 
+        }
+
+        .bubble-title {
+            font-size: 24px; 
+            font-weight: 700;
+            color: #F97316; 
+            margin-bottom: 8px;
+        }
+
+        .bubble-text {
+            font-size: 16px;
+            color: #374151; 
+            line-height: 1.6;
+        }
+
+        .shiba-animation-container { 
+            width: 320px; 
+            height: 320px;
+            margin-bottom: 30px; 
+            margin-top: 15px; 
+        }
+        .shiba-animation-container lottie-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        .action-button {
+            width: 100%;
+            max-width: 350px; 
+            padding: 14px 24px; 
+            border-radius: 12px;
+            font-weight: 600; 
+            font-size: 16px;
+            text-align: center;
+            background-color: #F97316; 
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+        }
+        .action-button:hover {
+            background-color: #EA580C; 
+        }
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="content-area">
+            <div class="speech-bubble-container">
+                <div class="speech-bubble">
+                    <h2 class="bubble-title">Welcome!</h2>
+                    <p class="bubble-text">
+                        Please answer a few questions so that I can help you to personalize your learning path.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="shiba-animation-container">
+                <lottie-player
+                    src="https://res.cloudinary.com/middo-vn/raw/upload/v1747207243/welcome.json"
+                    background="transparent"
+                    speed="1"
+                    loop
+                    autoplay
+                    aria-label="[Hoạt ảnh linh vật chào mừng]">
+                </lottie-player>
+            </div>
+        </div>
+
+        <button type="button" class="action-button" id="startPersonalizeButton">
+            Start Personalize
+        </button>
+    </div>
+
+    <script>
+        document.getElementById('startPersonalizeButton').addEventListener('click', () => {
+            console.log('Start Personalize button clicked');
+            window.location.href = "personalization_flow.html";
+        });
+    </script>
+</body>
+</html>

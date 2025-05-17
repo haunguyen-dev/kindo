@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Path</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5; 
+            margin: 0;
+            padding: 0;
+            height: 100vh; 
+            display: flex;
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+        }
+
+        /* Hide scrollbar */
+        ::-webkit-scrollbar { display: none; }
+        html, body, .scrollable-content { scrollbar-width: none; }
+        body, .scrollable-content { -ms-overflow-style: none; }
+
+        .device-frame {
+            width: 100%;
+            max-width: 414px;
+            height: 100vh;
+            max-height: 896px;
+            background-color: #FEFEFE;
+            position: relative; 
+            overflow: hidden; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            display: flex;
+            flex-direction: column; 
+            border-radius: 38px; 
+            box-sizing: border-box;
+        }
+
+        .page-content-wrapper { 
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .scrollable-content { 
+            flex-grow: 1;
+            overflow-y: auto; 
+            padding: 1rem; 
+            scroll-behavior: smooth;
+        }
+
+        .bottom-nav {
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0; 
+        }
+        
+        .aspect-ratio-4-3 {
+            position: relative;
+            width: 100%;
+            padding-top: 75%; 
+            overflow: hidden;
+            background-color: #e2e8f0; 
+        }
+        .aspect-ratio-4-3 img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            color: #333; 
+        }
+        .nav-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px; 
+            transition: background-color 0.2s; 
+        }
+
+        .nav-item.active .nav-icon-wrapper {
+            background-color: #333333; 
+        }
+        .nav-item.active { 
+            color: white;
+        }
+        .nav-item.active .nav-text {
+            color: #F97316; 
+            font-weight: 600; 
+        }
+        .nav-item.active { 
+            cursor: default;
+        }
+        .nav-item.active:hover .nav-icon-wrapper { 
+             background-color: #333333;
+        }
+        .nav-item.active:hover .nav-text { 
+            color: #F97316;
+        }
+
+        .nav-item .nav-text { 
+            font-size: 0.75rem; 
+            color: #999999;
+            font-weight: 400; 
+        }
+      
+        .nav-item:not(.active):hover .nav-icon-wrapper {
+             background-color: #f3f4f6; 
+        }
+        .nav-item:not(.active):hover .nav-text {
+            color: black; 
+        }
+         .nav-item:not(.active):hover i { 
+            color: #F97316; 
+        }
+
+        .learning-path-course-card {
+            border: 1px solid #E5E7EB;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        }
+        .learning-path-subsection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .learning-path-subsection-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .learning-status-badge {
+            background-color: #FEF3C7;
+            color: #D97706;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+        }
+
+        /* Course Progress Bar Styles */
+        .course-progress-container {
+            margin-top: 0.5rem; 
+            margin-bottom: 1rem; 
+        }
+        .course-progress-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px; 
+        }
+        .course-progress-bar-background {
+            flex-grow: 1; 
+            height: 12px; 
+            background-color: #fafafa; 
+            border-radius: 6px; 
+            overflow: hidden; 
+        }
+        .course-progress-bar-foreground {
+            height: 100%;
+            background-color: #EA8934; 
+            border-radius: 6px; 
+            transition: width 0.5s ease-in-out; 
+        }
+        .course-progress-percentage {
+            font-size: 1rem; 
+            font-weight: 600; 
+            color: #4B5563; 
+        }
+
+        .lesson-section-title-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.75rem;
+        }
+        .lesson-section-title-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6B7280;
+            white-space: nowrap;
+        }
+        .lesson-section-title-line {
+            flex-grow: 1;
+            height: 1px;
+            background-color: #E5E7EB;
+        }
+
+        .lesson-card {
+            background-color: white;
+            border-radius: 0.75rem; 
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border: 1px solid #F3F4F6; 
+            position: relative; 
+        }
+        .lesson-card.on-process-card { 
+            border: 1px solid #F97316; 
+        }
+        .lesson-title-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .lesson-number {
+            font-size: 1.875rem; 
+            font-weight: 700;
+            line-height: 1;
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #D1D5DB; 
+        }
+        .lesson-number.status-completed {
+            color: #10B981; 
+        }
+        .lesson-number.status-on-process {
+            color: #666666; 
+        }
+        .lesson-number.status-up-next {
+            color: #CCCCCC; 
+        }
+        .lesson-number.review-test-icon i {
+            color: #4B5563;
+            width: 24px;
+            height: 24px;
+        }
+
+        .lesson-content {
+            flex-grow: 1;
+        }
+        .lesson-content h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 0.125rem;
+        }
+        .lesson-content p {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        .review-test-description {
+            font-size: 0.875rem;
+            color: #6B7280;
+            text-align: left;
+        }
+
+        .lesson-action-button {
+            width: 100%;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.15s ease-in-out;
+            margin-top: 0.5rem;
+        }
+        .lesson-action-button.review {
+            background-color: #F3F4F6; 
+            color: #4B5563; 
+            border: 1px solid #E5E7EB; 
+        }
+        .lesson-action-button.review:hover {
+            background-color: #E5E7EB; 
+        }
+        .lesson-action-button.start { /* Used for Start Learning and Resume Lesson */
+            background-color: #F97316; 
+            color: white;
+        }
+         .lesson-action-button.start:hover {
+            background-color: #EA580C;
+        }
+        .lesson-action-button.learn { 
+            background-color: #FFFBEB; 
+            color: #D97706; 
+            border: 1px solid #FDE68A; 
+        }
+        .lesson-action-button.learn:hover:not(.disabled) { 
+            background-color: #FEF3C7; 
+        }
+        .lesson-action-button.disabled { 
+            background-color: #E5E7EB; 
+            color: #9CA3AF; 
+            cursor: not-allowed;
+            pointer-events: none; 
+        }
+        .lesson-action-button.learn.disabled { 
+            background-color: #FFF8F1;
+            color: #FEEEDA;
+            border: 1px solid #FEEEDA; 
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        #scrollToTopBtn {
+            position: absolute; 
+            bottom: 100px; 
+            right: 12px;   
+            background-color: #F97316;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; 
+            opacity: 0; 
+            visibility: hidden; 
+        }
+        #scrollToTopBtn.visible { 
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+        #scrollToTopBtn:hover {
+            background-color: #EA580C;
+        }
+
+        .coming-soon-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: #333333;
+            color: white;
+            font-size: 12px; 
+            padding: 2px 6px;
+            border-radius: 6px; 
+            font-weight: 500;
+        }
+        .no-lessons-message {
+            text-align: center;
+            color: #6B7280; 
+            padding: 1rem; 
+            font-style: italic;
+        }
+        .time-unit { 
+            font-size: 0.875rem; 
+            font-weight: 400; 
+            margin-right: 4px;
+            margin-left: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="device-frame">
+        <div class="page-content-wrapper">
+            <main class="scrollable-content space-y-6 pt-4" id="scrollableMainContent">
+                <section>
+                    <h2 class="text-lg font-semibold text-gray-700 mb-3">Overall</h2>
+                    <div class="flex flex-col space-y-4">
+                        <div class="bg-[#F2FDF5] p-4 rounded-xl shadow flex items-center space-x-3">
+                            <div class="w-10 h-10 flex items-center justify-center">
+                                <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747296408/chronometer.png" alt="Learning Time Icon" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <p class="text-sm text-green-700">Learning Time</p>
+                                <p class="text-xl font-bold text-gray-900" id="learningTimeDisplay">-</p>
+                            </div>
+                        </div>
+                        <div class="bg-[#FFF8F1] p-4 rounded-xl shadow flex items-center space-x-3">
+                            <div class="w-10 h-10 flex items-center justify-center">
+                                <img id="streakDaysIcon" src="https://res.cloudinary.com/middo-vn/image/upload/v1747378173/Artboard_2.png" alt="Streak icon" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <p class="text-sm text-orange-700">Streak Days</p>
+                                <p class="text-xl font-bold text-gray-900"><span id="streakDaysValue">0</span> <span class="text-sm font-normal">Day</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="text-lg font-semibold text-gray-700 mb-3">Today Lesson</h2>
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="aspect-ratio-4-3">
+                             <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747297464/Frame_17.png" alt="Today's Lesson Cover Image">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-gray-800" id="todayLessonTitle">회사원 이 아니에요</h3>
+                            <p class="text-sm text-gray-600 mb-3" id="todayLessonSubtitle">I'm not a company employee</p>
+                            <div class="course-progress-container mb-3"> 
+                                <div class="course-progress-bar-wrapper">
+                                    <div class="course-progress-bar-background">
+                                        <div class="course-progress-bar-foreground" id="todayLessonProgress" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="course-progress-percentage" id="todayLessonPercentage">0%</span>
+                                </div>
+                            </div>
+                            <button id="todayLessonActionBtn" class="w-full text-white font-semibold py-3 px-4 rounded-lg transition duration-150 ease-in-out">
+                                </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="text-lg font-semibold text-gray-700 mb-3">Learning Path</h2>
+                    <div class="learning-path-course-card">
+                        <div class="learning-path-subsection-header">
+                            <h3 class="learning-path-subsection-title">Korean Beginer 1</h3>
+                            <span class="learning-status-badge">Learning</span>
+                        </div>
+                        <div class="course-progress-container mt-2 mb-4">
+                            <div class="course-progress-bar-wrapper">
+                                <div class="course-progress-bar-background">
+                                    <div class="course-progress-bar-foreground" id="koreanBeginer1Progress" style="width: 0%;"></div>
+                                </div>
+                                <span class="course-progress-percentage" id="koreanBeginer1Percentage">0%</span>
+                            </div>
+                        </div>
+
+                        <div id="completedLessonsSection">
+                            <div class="lesson-section-title-container">
+                                <span class="lesson-section-title-text">Completed</span>
+                                <div class="lesson-section-title-line"></div>
+                            </div>
+                            <div id="completedLessonsContainer" class="space-y-3">
+                                </div>
+                        </div>
+
+                        <div id="onProcessLessonsSection" class="mt-6">
+                            <div class="lesson-section-title-container">
+                                <span class="lesson-section-title-text">On Process</span>
+                                <div class="lesson-section-title-line"></div>
+                            </div>
+                            <div id="onProcessLessonsContainer" class="space-y-3">
+                                </div>
+                            <p id="noOnProcessLessonsMessage" class="no-lessons-message" style="display: none;">No lessons currently in process.</p>
+                        </div>
+
+                        <div id="upNextLessonsSection" class="mt-6">
+                             <div class="lesson-section-title-container">
+                                <span class="lesson-section-title-text">Up Next</span>
+                                <div class="lesson-section-title-line"></div>
+                            </div>
+                            <div id="upNextLessonsContainer" class="space-y-3">
+                                </div>
+                        </div>
+
+                        <div id="reviewTestSection" class="mt-6">
+                            </div>
+                    </div> 
+                </section>
+
+            </main>
+
+            <button id="scrollToTopBtn" title="Go to top">
+                <i data-lucide="arrow-up"></i>
+            </button>
+
+            <nav class="w-full bg-white p-3 bottom-nav sticky bottom-0">
+                <div class="flex justify-around items-center">
+                    <a href="#" class="nav-item active">
+                        <div class="nav-icon-wrapper">
+                            <i data-lucide="house" class="w-6 h-6"></i>
+                        </div>
+                        <span class="nav-text">Home</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon-wrapper">
+                            <i data-lucide="speech" class="w-6 h-6"></i>
+                        </div>
+                        <span class="nav-text">Practice</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon-wrapper">
+                             <i data-lucide="trophy" class="w-6 h-6"></i>
+                        </div>
+                        <span class="nav-text">Achievements</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <div class="nav-icon-wrapper">
+                            <i data-lucide="settings" class="w-6 h-6"></i>
+                        </div>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+
+        const scrollableMainContent = document.getElementById('scrollableMainContent');
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        const scrollThreshold = 300; 
+
+        if (scrollableMainContent && scrollToTopBtn) {
+            scrollableMainContent.addEventListener('scroll', function() {
+                if (scrollableMainContent.scrollTop > scrollThreshold) {
+                    scrollToTopBtn.classList.add('visible');
+                } else {
+                    scrollToTopBtn.classList.remove('visible');
+                }
+            });
+            scrollToTopBtn.addEventListener('click', function() {
+                scrollableMainContent.scrollTop = 0; 
+            });
+        }
+
+        const todayLessonId = 'lesson_hoesaweon_02'; 
+        const courseLessonsData = [ 
+            { lessonNumber: '01', id: 'lesson_01_completed', title: '회사원 이 아니에요', subtitle: "I'm not a company employee", status: 'completed', initiallyCompleted: true, progressKey: 'lesson_01_completed_progress', isReviewTest: false, isComingSoon: false }, 
+            { lessonNumber: '02', id: todayLessonId, title: '회사원 이 아니에요', subtitle: "I'm not a company employee", status: 'on-process', progressKey: `${todayLessonId}_progress`, isReviewTest: false, isComingSoon: false },
+            { lessonNumber: '03', id: 'lesson_03_upnext', title: '회사원 이 아니에요', subtitle: "I'm not a company employee", status: 'up-next', progressKey: 'lesson_03_upnext_progress', isReviewTest: false, isComingSoon: true },
+            { lessonNumber: '04', id: 'lesson_04_upnext', title: '회사원 이 아니에요', subtitle: "I'm not a company employee", status: 'up-next', progressKey: 'lesson_04_upnext_progress', isReviewTest: false, isComingSoon: true },
+            { lessonNumber: null, id: 'review_test_beginner1', title: 'Review Test', subtitle: "You have to completed all lesson above to take this test", status: 'up-next', progressKey: 'review_test_beginner1_progress', isReviewTest: true, isComingSoon: false }
+        ];
+
+        function formatLearningTime(totalSeconds) {
+            if (totalSeconds <= 0) {
+                return "Start learning to track your time!";
+            }
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const pad = (num) => String(num).padStart(2, '0');
+
+            let timeString = "";
+            if (hours > 0) {
+                timeString += `${pad(hours)}<span class="time-unit">h</span>`;
+            }
+            if (minutes > 0 || hours > 0) { 
+                timeString += `${pad(minutes)}<span class="time-unit">m</span>`;
+            }
+            timeString += `${pad(seconds)}<span class="time-unit">s</span>`;
+            
+            return timeString;
+        }
+
+
+        function displayTotalLearningTime() {
+            const learningTimeDisplayElement = document.getElementById('learningTimeDisplay');
+            if (learningTimeDisplayElement) {
+                let totalSeconds = parseInt(localStorage.getItem('totalLearningTimeInSeconds')) || 0;
+                const formattedTime = formatLearningTime(totalSeconds);
+                if (totalSeconds <= 0) {
+                    learningTimeDisplayElement.innerHTML = `<span class="text-sm font-normal text-gray-500">${formattedTime}</span>`; 
+                } else {
+                    learningTimeDisplayElement.innerHTML = formattedTime;
+                }
+            }
+        }
+
+        function updateStreakDisplay() {
+            const streakDaysValueEl = document.getElementById('streakDaysValue');
+            const streakDaysIconEl = document.getElementById('streakDaysIcon');
+            let currentStreak = parseInt(localStorage.getItem('streakDays')) || 0;
+
+            if (streakDaysValueEl) {
+                streakDaysValueEl.textContent = currentStreak;
+            }
+
+            if (streakDaysIconEl) {
+                if (currentStreak === 0) {
+                    streakDaysIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378173/Artboard_2.png";
+                } else if (currentStreak >= 1 && currentStreak <= 3) {
+                    streakDaysIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378207/Artboard_2_1.png";
+                } else if (currentStreak >= 4 && currentStreak <= 6) {
+                    streakDaysIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378262/Artboard_2_2.png";
+                } else { 
+                    streakDaysIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378299/Artboard_2_3.png";
+                }
+            }
+        }
+
+
+        function updateTodayLessonDisplay() {
+            const todayLessonTitleEl = document.getElementById('todayLessonTitle');
+            const todayLessonSubtitleEl = document.getElementById('todayLessonSubtitle');
+            const todayLessonProgressBar = document.getElementById('todayLessonProgress');
+            const todayLessonPercentageText = document.getElementById('todayLessonPercentage');
+            const todayLessonActionBtn = document.getElementById('todayLessonActionBtn');
+
+            const lessonForTodayDisplay = courseLessonsData.find(lesson => lesson.id === todayLessonId); 
+
+            if (lessonForTodayDisplay && todayLessonTitleEl && todayLessonSubtitleEl && todayLessonProgressBar && todayLessonPercentageText && todayLessonActionBtn) {
+                todayLessonTitleEl.textContent = lessonForTodayDisplay.title;
+                todayLessonSubtitleEl.textContent = lessonForTodayDisplay.subtitle;
+                
+                const savedProgress = localStorage.getItem(lessonForTodayDisplay.progressKey);
+                const progress = savedProgress ? parseInt(savedProgress, 10) : 0; 
+                const savedQIndex = localStorage.getItem(`qIndex_${lessonForTodayDisplay.id}`);
+                const qIndex = savedQIndex ? parseInt(savedQIndex, 10) : 0;
+                
+                todayLessonProgressBar.style.width = progress + '%';
+                todayLessonPercentageText.textContent = progress + '%';
+
+                // Update button for Today Lesson
+                todayLessonActionBtn.classList.remove('bg-orange-500', 'hover:bg-orange-600', 'lesson-action-button', 'review'); // Reset classes
+                todayLessonActionBtn.classList.add('w-full', 'text-white', 'font-semibold', 'py-3', 'px-4', 'rounded-lg', 'transition', 'duration-150', 'ease-in-out'); // Add back common classes
+
+
+                if (progress === 100) {
+                    todayLessonActionBtn.textContent = 'Review Lesson';
+                    todayLessonActionBtn.classList.add('lesson-action-button', 'review'); 
+                    todayLessonActionBtn.onclick = () => navigateToLessonDetail(lessonForTodayDisplay.id, lessonForTodayDisplay.title, lessonForTodayDisplay.subtitle, true);
+                } else if (qIndex > 0 && progress < 100) { // Check qIndex for resume state
+                    todayLessonActionBtn.textContent = 'Resume Lesson';
+                    todayLessonActionBtn.classList.add('bg-orange-500', 'hover:bg-orange-600'); // Primary button style
+                    todayLessonActionBtn.onclick = () => navigateToLessonDetail(lessonForTodayDisplay.id, lessonForTodayDisplay.title, lessonForTodayDisplay.subtitle, false);
+                } else { // Default: Start Learning
+                    todayLessonActionBtn.textContent = 'Start Learning';
+                    todayLessonActionBtn.classList.add('bg-orange-500', 'hover:bg-orange-600'); // Primary button style
+                    todayLessonActionBtn.onclick = () => navigateToLessonDetail(lessonForTodayDisplay.id, lessonForTodayDisplay.title, lessonForTodayDisplay.subtitle, false);
+                }
+
+            } else if (todayLessonProgressBar && todayLessonPercentageText) { 
+                todayLessonProgressBar.style.width = '0%';
+                todayLessonPercentageText.textContent = '0%';
+                if(todayLessonTitleEl) todayLessonTitleEl.textContent = "No lesson for today";
+                if(todayLessonSubtitleEl) todayLessonSubtitleEl.textContent = "Check back later!";
+            }
+        }
+
+        function renderLessonCard(lesson) {
+            const card = document.createElement('div');
+            card.classList.add('lesson-card');
+            card.dataset.lessonId = lesson.id;
+
+            let effectiveStatus = lesson.status; 
+            const savedProgress = localStorage.getItem(lesson.progressKey);
+            const progress = savedProgress ? parseInt(savedProgress, 10) : 0;
+            const savedQIndex = localStorage.getItem(`qIndex_${lesson.id}`);
+            const qIndex = savedQIndex ? parseInt(savedQIndex, 10) : 0;
+
+
+            if (lesson.initiallyCompleted && savedProgress === null) {
+                effectiveStatus = 'completed';
+            } else if (savedProgress !== null) { 
+                if (progress === 100) {
+                    effectiveStatus = 'completed';
+                } else if (progress > 0 || (qIndex > 0 && progress < 100) ) { // Consider qIndex for on-process
+                    effectiveStatus = 'on-process';
+                } else { 
+                    effectiveStatus = 'up-next';
+                }
+            }
+            
+            if (lesson.id === todayLessonId && lesson.status === 'on-process' && progress < 100) {
+                 effectiveStatus = 'on-process';
+            }
+
+
+            if (effectiveStatus === 'on-process') {
+                card.classList.add('on-process-card');
+            }
+
+            let titleRowHtml = `
+                <div class="lesson-title-row">
+                    <span class="lesson-number status-${effectiveStatus} ${lesson.isReviewTest ? 'review-test-icon' : ''}">
+                        ${lesson.isReviewTest ? '<i data-lucide="file-text" class="w-6 h-6"></i>' : lesson.lessonNumber}
+                    </span>
+                    <div class="lesson-content">
+                        <h3>${lesson.title}</h3>
+                        <p>${lesson.subtitle}</p>
+                    </div>
+                </div>
+            `;
+            if (lesson.isComingSoon && effectiveStatus === 'up-next') {
+                card.innerHTML += `<span class="coming-soon-badge">Coming Soon</span>`;
+            }
+            card.innerHTML += titleRowHtml;
+
+            const button = document.createElement('button');
+            button.classList.add('lesson-action-button');
+            
+            if (effectiveStatus === 'completed') {
+                button.textContent = 'Review Lesson';
+                button.classList.add('review');
+                button.onclick = () => navigateToLessonDetail(lesson.id, lesson.title, lesson.subtitle, true);
+            } else if (effectiveStatus === 'on-process') {
+                // Check qIndex for "Resume" text
+                button.textContent = (qIndex > 0 && progress < 100) ? 'Resume Lesson' : 'Start Learning';
+                button.classList.add('start');
+                button.onclick = () => navigateToLessonDetail(lesson.id, lesson.title, lesson.subtitle, false);
+            } else if (effectiveStatus === 'up-next') {
+                button.textContent = lesson.isReviewTest ? 'Take a Test' : 'Learn';
+                button.classList.add('learn');
+                if (lesson.isComingSoon || lesson.isReviewTest) { 
+                    button.classList.add('disabled');
+                } else {
+                     button.onclick = () => navigateToLessonDetail(lesson.id, lesson.title, lesson.subtitle, false);
+                }
+            }
+             if (lesson.isReviewTest && effectiveStatus === 'up-next'){ 
+                button.classList.add('learn', 'disabled');
+            }
+
+            card.appendChild(button);
+            return card;
+        }
+
+        function populateLearningPath() {
+            const completedContainer = document.getElementById('completedLessonsContainer');
+            const onProcessContainer = document.getElementById('onProcessLessonsContainer');
+            const upNextContainer = document.getElementById('upNextLessonsContainer');
+            const reviewTestSection = document.getElementById('reviewTestSection'); 
+            const noOnProcessMsg = document.getElementById('noOnProcessLessonsMessage');
+
+            completedContainer.innerHTML = ''; 
+            onProcessContainer.innerHTML = ''; 
+            upNextContainer.innerHTML = '';
+            reviewTestSection.innerHTML = ''; 
+
+            let onProcessLessonsCount = 0;
+
+            courseLessonsData.forEach(lesson => {
+                const savedProgress = localStorage.getItem(lesson.progressKey);
+                const progress = savedProgress ? parseInt(savedProgress, 10) : 0;
+                const savedQIndex = localStorage.getItem(`qIndex_${lesson.id}`);
+                const qIndex = savedQIndex ? parseInt(savedQIndex, 10) : 0;
+                
+                let effectiveStatus = lesson.status; 
+
+                if (lesson.initiallyCompleted && savedProgress === null) {
+                    effectiveStatus = 'completed';
+                } else if (savedProgress !== null) { 
+                    if (progress === 100) {
+                        effectiveStatus = 'completed';
+                    } else if (progress > 0 || (qIndex > 0 && progress < 100)) { // Check qIndex here too
+                        effectiveStatus = 'on-process';
+                    } else { 
+                        effectiveStatus = 'up-next';
+                    }
+                }
+                
+                if (lesson.id === todayLessonId && lesson.status === 'on-process' && progress < 100) {
+                    effectiveStatus = 'on-process';
+                }
+
+                let lessonDataForCard = { ...lesson, status: effectiveStatus };
+
+                if (lesson.isReviewTest) {
+                    const reviewTestTitleContainer = document.createElement('div');
+                    reviewTestTitleContainer.className = 'lesson-section-title-container';
+                    reviewTestTitleContainer.innerHTML = `
+                        <span class="lesson-section-title-text">Review Test</span>
+                        <div class="lesson-section-title-line"></div>
+                    `;
+                    reviewTestSection.appendChild(reviewTestTitleContainer);
+                    reviewTestSection.appendChild(renderLessonCard(lessonDataForCard));
+                } else if (effectiveStatus === 'completed') {
+                    completedContainer.appendChild(renderLessonCard(lessonDataForCard));
+                } else if (effectiveStatus === 'on-process') {
+                    onProcessContainer.appendChild(renderLessonCard(lessonDataForCard));
+                    onProcessLessonsCount++;
+                } else if (effectiveStatus === 'up-next') {
+                    upNextContainer.appendChild(renderLessonCard(lessonDataForCard));
+                }
+            });
+            
+            if (noOnProcessMsg) {
+                if (onProcessLessonsCount === 0) {
+                    noOnProcessMsg.style.display = 'block'; 
+                } else {
+                    noOnProcessMsg.style.display = 'none'; 
+                }
+            }
+            lucide.createIcons(); 
+        }
+
+        function updateCourseProgressBar() {
+            const koreanBeginer1ProgressBar = document.getElementById('koreanBeginer1Progress');
+            const koreanBeginer1PercentageText = document.getElementById('koreanBeginer1Percentage');
+            
+            let numberOfCourseCompletedLessons = 0; 
+            const totalLessonsInCourse = courseLessonsData.length;
+
+            if (totalLessonsInCourse === 0) {
+                if (koreanBeginer1ProgressBar) koreanBeginer1ProgressBar.style.width = '0%';
+                if (koreanBeginer1PercentageText) koreanBeginer1PercentageText.textContent = '0%';
+                return;
+            }
+
+            courseLessonsData.forEach(lesson => {
+                const savedProgress = localStorage.getItem(lesson.progressKey);
+                if (savedProgress === '100' || (savedProgress === null && lesson.initiallyCompleted === true) ) { 
+                    numberOfCourseCompletedLessons++;
+                }
+            });
+            
+            const percentage = Math.round((numberOfCourseCompletedLessons / totalLessonsInCourse) * 100);
+
+            if (koreanBeginer1ProgressBar) {
+                koreanBeginer1ProgressBar.style.width = percentage + '%';
+            }
+            if (koreanBeginer1PercentageText) {
+                koreanBeginer1PercentageText.textContent = percentage + '%';
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            displayTotalLearningTime(); 
+            updateTodayLessonDisplay();
+            populateLearningPath(); 
+            updateCourseProgressBar();
+            updateStreakDisplay(); 
+
+            window.addEventListener('storage', function(e) {
+                if (e.key && e.key.startsWith('lesson_') && e.key.endsWith('_progress')) {
+                    updateTodayLessonDisplay(); 
+                    populateLearningPath(); 
+                    updateCourseProgressBar();  
+                }
+                if (e.key === 'totalLearningTimeInSeconds' || e.key === 'streakDays' || e.key === 'lastStreakUpdateDate') { 
+                    displayTotalLearningTime();
+                    updateStreakDisplay();
+                }
+            });
+        });
+        
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                displayTotalLearningTime();
+                updateTodayLessonDisplay();
+                populateLearningPath();
+                updateCourseProgressBar();
+                updateStreakDisplay();
+            }
+        });
+
+
+        function navigateToLessonDetail(lessonId, lessonTitle, lessonSubtitle, isReview = false) {
+            console.log("Navigating to lesson_detail.html with ID:", lessonId, "Is Review:", isReview); 
+            localStorage.setItem('currentLessonId', lessonId);
+            localStorage.setItem('currentLessonTitle', lessonTitle);
+            localStorage.setItem('currentLessonSubtitle', lessonSubtitle);
+
+            if (!isReview) { 
+                localStorage.setItem('lessonStartTime', Date.now().toString());
+                console.log("Set lessonStartTime:", localStorage.getItem('lessonStartTime'));
+            } else {
+                // If it's a review of a completed lesson, we should reset its question progress for a fresh review
+                localStorage.removeItem(`qIndex_${lessonId}`);
+                localStorage.removeItem(`qAnswers_${lessonId}`);
+                localStorage.removeItem('lessonStartTime'); 
+            }
+
+            window.location.href = 'lesson_detail.html';
+        }
+
+    </script>
+</body>
+</html>

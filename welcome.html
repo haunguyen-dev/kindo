@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindo - Chào mừng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+        }
+
+        .device-frame {
+            width: 100%;
+            max-width: 414px; 
+            height: 100vh;
+            max-height: 896px; 
+            background-color: #FEFEFE; 
+            position: relative;
+            overflow: hidden; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            display: flex; 
+            flex-direction: column;
+            border-radius: 38px; 
+        }
+
+        .slider-container {
+            width: 100%;
+            flex-grow: 1; 
+            overflow: hidden;
+            position: relative; 
+        }
+
+        .slide-wrapper {
+            display: flex;
+            width: 300%; 
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide {
+            width: calc(100% / 3); 
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; 
+            padding: 20px 20px 120px 20px; 
+            box-sizing: border-box;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .logo-placeholder {
+            width: auto;        
+            max-width: 65%;     
+            max-height: 160px;  
+            height: auto;       
+            margin-bottom: 24px; 
+        }
+
+        .illustration-placeholder {
+            width: 180px;        
+            height: auto;
+            max-height: 180px;
+            margin-bottom: 20px;
+        }
+        .lottie-animation { /* Dùng cho Lottie ở slide 2 và 3 */
+            width: 320px; 
+            height: 320px; 
+            margin-bottom: 20px;
+        }
+        .lottie-animation lottie-player { 
+             width: 100%;
+             height: 100%;
+        }
+
+
+        .app-title { 
+            font-size: 36px;
+            font-weight: 700;
+            color: #F97316;
+            margin-bottom: 16px;
+        }
+        
+        .app-subtitle {
+            font-size: 16px;
+            color: #4B5563;
+            max-width: 300px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .bottom-navigation { /* Container chung cho dots và buttons */
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 30px; /* Khoảng cách với đáy device-frame */
+            padding-top: 20px;
+            background-color: #FEFEFE; /* Để che nội dung slide khi trượt qua */
+            border-bottom-left-radius: 38px; /* Bo góc theo device-frame */
+            border-bottom-right-radius: 38px;
+        }
+
+        .pagination-dots {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            transition: background-color 0.3s ease;
+        }
+        .dot.active {
+            background-color: #F97316;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            width: 100%;
+            max-width: 350px; /* Giữ chiều rộng nút nhất quán */
+            gap: 10px;
+            padding: 0 20px; /* Padding ngang cho cụm nút */
+            box-sizing: border-box;
+        }
+
+        .nav-button {
+            color: white;
+            font-weight: 500;
+            padding-top: 12px; 
+            padding-bottom: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            border: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .back-button.hug-content {
+            padding-left: 16px;  
+            padding-right: 16px;
+            flex-grow: 0; /* Không cho nút back co giãn */
+            width: auto; /* Chiều rộng tự động */
+        }
+
+
+        .next-button-main, .learn-today-button {
+            background-color: #F97316;
+            flex-grow: 1; /* Cho nút Next/Learn Today chiếm không gian còn lại */
+        }
+        .back-button {
+            background-color: #E5E7EB;
+            color: #4B5563;
+        }
+
+
+    </style>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="slider-container" id="sliderContainer">
+            <div class="slide-wrapper" id="slideWrapper">
+                <div class="slide" data-slide-index="0">
+                    <div class="content-area">
+                        <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="[Hình ảnh Logo Kindo]" class="logo-placeholder" onerror="this.onerror=null;this.src='https://placehold.co/200x150/FFE8D6/F97316?text=Kindo%0ALogo+Error&font=Open+Sans';">
+                        <p class="app-subtitle">Enjoying an integrated learning center for Korean and Korean culture through Online</p>
+                    </div>
+                </div>
+
+                <div class="slide" data-slide-index="1">
+                    <div class="content-area">
+                        <div class="lottie-animation">
+                            <lottie-player 
+                                src="https://res.cloudinary.com/middo-vn/raw/upload/v1747205273/playing_game.json" 
+                                background="transparent" 
+                                speed="1" 
+                                loop 
+                                autoplay
+                                aria-label="[Hoạt ảnh Learn as Play]">
+                            </lottie-player>
+                        </div>
+                        <h1 class="app-title">Learn as Play</h1>
+                        <p class="app-subtitle">Learning through interaction quiz to enhance the experience</p>
+                    </div>
+                </div>
+
+                <div class="slide" data-slide-index="2">
+                    <div class="content-area">
+                         <div class="lottie-animation">
+                            <lottie-player 
+                                src="https://res.cloudinary.com/middo-vn/raw/upload/v1747205413/goal.json" 
+                                background="transparent" 
+                                speed="1" 
+                                loop 
+                                autoplay
+                                aria-label="[Hoạt ảnh Get Achievements]">
+                            </lottie-player>
+                        </div>
+                        <h1 class="app-title">Get Achievements</h1>
+                        <p class="app-subtitle">Earn achievements as a prize for your hard working</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="bottom-navigation">
+            <div class="pagination-dots">
+                <span class="dot active" data-dot-index="0"></span>
+                <span class="dot" data-dot-index="1"></span>
+                <span class="dot" data-dot-index="2"></span>
+            </div>
+            <div class="navigation-buttons">
+                <button class="nav-button back-button" id="backButton" style="visibility: hidden;"> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button class="nav-button next-button-main" id="nextButton">
+                    Next
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="margin-left: 8px;">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button class="nav-button learn-today-button" id="learnTodayButton" style="display: none;">
+                    Learn Today!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sliderContainer = document.getElementById('sliderContainer');
+        const slideWrapper = document.getElementById('slideWrapper');
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const nextButton = document.getElementById('nextButton');
+        const backButton = document.getElementById('backButton');
+        const learnTodayButton = document.getElementById('learnTodayButton');
+
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        let touchstartX = 0;
+        let touchendX = 0;
+        const swipeThreshold = 50; 
+
+        sliderContainer.addEventListener('touchstart', function(event) {
+            touchstartX = event.changedTouches[0].screenX;
+        }, false);
+
+        sliderContainer.addEventListener('touchend', function(event) {
+            touchendX = event.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            if (touchendX < touchstartX - swipeThreshold) { 
+                goToNextSlide();
+            }
+            if (touchendX > touchstartX + swipeThreshold) { 
+                goToPrevSlide();
+            }
+        }
+
+        function updateSlidePosition() {
+            slideWrapper.style.transform = `translateX(-${currentSlide * (100 / totalSlides)}%)`;
+        }
+
+        function updateDots() {
+            dots.forEach(dot => dot.classList.remove('active'));
+            if (dots[currentSlide]) {
+                dots[currentSlide].classList.add('active');
+            }
+        }
+
+        function updateButtons() {
+            if (currentSlide === 0) {
+                backButton.style.visibility = 'hidden';
+                backButton.classList.remove('hug-content');
+                nextButton.style.display = 'flex';
+                nextButton.style.width = '100%'; 
+                nextButton.style.flexGrow = '0';
+                learnTodayButton.style.display = 'none';
+            } else if (currentSlide === totalSlides - 1) {
+                backButton.style.visibility = 'visible';
+                backButton.classList.add('hug-content');
+                nextButton.style.display = 'none';
+                learnTodayButton.style.display = 'flex';
+                learnTodayButton.style.flexGrow = '1';
+            } else { 
+                backButton.style.visibility = 'visible';
+                backButton.classList.add('hug-content');
+                nextButton.style.display = 'flex';
+                nextButton.style.flexGrow = '1';   
+                nextButton.style.width = 'auto'; 
+                learnTodayButton.style.display = 'none';
+            }
+        }
+
+
+        function goToSlide(slideIndex) {
+            if (slideIndex < 0 || slideIndex >= totalSlides) return;
+            currentSlide = slideIndex;
+            updateSlidePosition();
+            updateDots();
+            updateButtons();
+        }
+
+        function goToNextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                goToSlide(currentSlide);
+            } else if (currentSlide === totalSlides - 1) {
+                // Hành động khi ở slide cuối và nhấn Next (nếu nút Next được thay bằng Learn Today)
+                // Hiện tại Learn Today sẽ xử lý việc này
+            }
+        }
+
+        function goToPrevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                goToSlide(currentSlide);
+            }
+        }
+
+        nextButton.addEventListener('click', goToNextSlide);
+        backButton.addEventListener('click', goToPrevSlide);
+        learnTodayButton.addEventListener('click', () => {
+            console.log('Nút Learn Today đã được nhấp! Chuyển đến trang đăng nhập.');
+            window.location.href = "login.html"; 
+        });
+
+        function initializeSlider() {
+            slideWrapper.style.width = `${totalSlides * 100}%`;
+            slides.forEach(slide => {
+                slide.style.width = `${100 / totalSlides}%`;
+            });
+            updateButtons(); 
+            updateDots(); 
+            updateSlidePosition(); 
+        }
+
+        initializeSlider();
+
+    </script>
+</body>
+</html>

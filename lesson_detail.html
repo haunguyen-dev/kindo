@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Detail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Hide scrollbar */
+        ::-webkit-scrollbar { display: none; }
+        html, body, .scrollable-content, .lesson-view-content { scrollbar-width: none; }
+        body, .scrollable-content, .lesson-view-content { -ms-overflow-style: none; }
+
+
+        .device-frame {
+            width: 100%;
+            max-width: 414px;
+            height: 100vh;
+            max-height: 896px;
+            background-color: #FEFEFE;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            border-radius: 38px;
+            box-sizing: border-box;
+        }
+
+        .page-content-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            box-sizing: border-box;
+            position: relative; 
+        }
+
+        .lesson-view { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #FEFEFE; 
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 10; 
+        }
+
+        .lesson-overview-view {
+            transform: translateY(0); 
+            opacity: 1;
+            z-index: 20; 
+            pointer-events: auto;
+        }
+
+        .lesson-actual-view {
+            transform: translateY(100%); 
+            opacity: 0;
+            z-index: 10; 
+            display: none; 
+        }
+        
+        .lesson-review-incorrect-view, .lesson-complete-view { 
+            /* transform: translateY(100%); /* No longer needed for initial off-screen for review prompt */
+            /* opacity: 0;  */
+            z-index: 40; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 2rem;
+            text-align: center;
+            /* transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Removed transition */
+        }
+
+
+        .lesson-overview-view.slide-out { 
+            opacity: 0; 
+            transform: translateY(-20vh); 
+            z-index: 10;
+            pointer-events: none; 
+        }
+        .lesson-actual-view.slide-in { 
+            display: flex; 
+            transform: translateY(0); 
+            opacity: 1;
+            z-index: 30; 
+            pointer-events: auto; 
+        }
+      
+        /* .lesson-review-incorrect-view.active, .lesson-complete-view.active no longer needed for slide */
+
+
+        .scrollable-content { 
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem; 
+        }
+        .lesson-view-content { 
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem; 
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .lesson-header-image-container {
+            width: 120px; 
+            height: 90px;  
+            border-radius: 0.5rem; 
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .lesson-header-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .course-progress-container {
+            margin-bottom: 0.5rem; 
+        }
+        .course-progress-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px; 
+        }
+        .course-progress-bar-background {
+            flex-grow: 1; 
+            height: 12px; 
+            background-color: #fafafa; 
+            border-radius: 6px; 
+            overflow: hidden; 
+        }
+        .course-progress-bar-foreground {
+            height: 100%;
+            background-color: #EA8934; 
+            border-radius: 6px; 
+            transition: width 0.5s ease-in-out; 
+        }
+        .course-progress-percentage {
+            font-size: 1rem; 
+            font-weight: 600; 
+            color: #4B5563; 
+        }
+
+
+        .section-title-badge {
+            background-color: #FFFBEB; 
+            color: #D97706; 
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            padding: 0.25rem 0.75rem; 
+            border-radius: 0.375rem; 
+            display: inline-block; 
+            margin-bottom: 0.5rem; 
+        }
+
+        /* Styles for lesson question view */
+        .lesson-question-header { 
+            padding: 1rem; 
+            display: flex;
+            flex-direction: column; 
+            gap: 20px; 
+            position: sticky;
+            top: 0;
+            background-color: white; 
+            z-index: 10; 
+            flex-shrink: 0;
+            margin-bottom: 1.25rem; 
+        }
+        .lesson-question-header-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; 
+            width: 100%;
+        }
+        .lesson-question-header-title {
+            font-size: 22px; 
+            font-weight: 700; 
+            color: #1F2937; 
+        }
+        .lesson-question-header-close-btn { 
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+        .lesson-question-header-close-btn i {
+             color: #6B7280; 
+             width: 28px; 
+             height: 28px;
+        }
+
+        .lesson-question-progress-bar-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px; 
+            width: 100%; 
+        }
+        .lesson-question-progress-segment {
+            height: 5px; 
+            flex-grow: 1;
+            background-color: #E5E7EB; 
+            border-radius: 2.5px; 
+            transition: background-color 0.3s ease;
+        }
+        .lesson-question-progress-segment.current { 
+            background-color: #333333; 
+        }
+        .lesson-question-progress-segment.answered.correct { 
+            background-color: #10B981; 
+        }
+        .lesson-question-progress-segment.answered.incorrect { 
+            background-color: #EF4444; 
+        }
+
+        .lesson-question-instruction-area {
+            display: flex;
+            align-items: flex-start; 
+            gap: 12px; 
+            margin-bottom: 1rem; 
+            width: 100%;
+        }
+        .lesson-mascot-icon { 
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+        .lesson-mascot-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .lesson-question-instruction-text { 
+            font-size: 16px; 
+            font-weight: 500; 
+            color: #374151; 
+            background-color: #F3F4F6;
+            padding: 10px 16px;
+            border-radius: 12px;
+            flex-grow: 1; 
+            text-align: left; 
+        }
+
+        .lesson-question-stimulus {
+            min-height: 80px; 
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center; 
+            margin-bottom: 1.5rem; 
+            font-size: 32px; 
+            font-weight: 600; 
+            color: #1F2937; 
+            text-align: center;
+        }
+        .lesson-question-stimulus img { 
+            width: 120px; 
+            height: 120px; 
+            object-fit: contain;
+            margin-bottom: 1rem; 
+        }
+        .lesson-audio-note { 
+            font-size: 0.75rem; 
+            color: #6B7280; 
+            margin-bottom: 0.75rem; 
+            width: 100%;
+            text-align: center;
+        }
+        .lesson-audio-controls { 
+            display: flex;
+            gap: 1rem; 
+            align-items: center;
+            justify-content: center; 
+            width: 100%;
+            margin-top: 0.5rem; 
+        }
+        .lesson-play-audio-btn { 
+            background-color: #F97316; 
+            color: white;
+            padding: 0.75rem 1.5rem; 
+            border-radius: 0.75rem; 
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            gap: 0.5rem; 
+            font-weight: 600;
+            min-width: 200px; 
+        }
+        .lesson-play-audio-btn:hover:not(:disabled) {
+            background-color: #EA580C; 
+        }
+        .lesson-play-audio-btn:disabled {
+            background-color: #D1D5DB;
+            cursor: not-allowed;
+        }
+        .lesson-audio-speed-btn { 
+            background-color: #E5E7EB; 
+            color: #374151; 
+            padding: 0.625rem 0.875rem; 
+            border-radius: 0.5rem; 
+            font-size: 0.875rem; 
+            font-weight: 500;
+        }
+
+
+        .lesson-question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px; 
+            width: 100%;
+            margin-bottom: auto; 
+            margin-top: 1.5rem; 
+        }
+        .lesson-question-option-btn { 
+            background-color: #F9FAFB; 
+            border: 1px solid #F3F4F6; 
+            border-radius: 12px; 
+            padding: 16px 20px; 
+            font-size: 18px; 
+            font-weight: 500; 
+            color: #374151; 
+            text-align: left;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+        }
+        .lesson-question-option-btn:hover {
+            border-color: #D1D5DB; 
+        }
+        .lesson-question-option-btn.selected { 
+            border-color: #374151; 
+            background-color: #374151; 
+            color: white; 
+        }
+        .lesson-question-footer {
+            margin-top: 1.25rem; 
+            padding-top: 1.25rem; 
+            flex-shrink: 0;
+        }
+        .lesson-check-button { 
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            background-color: #FFF8F1; 
+            color: #EA8934; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+        }
+        .lesson-check-button:hover:not(:disabled) {
+            background-color: #FEEEDA; 
+        }
+        .lesson-check-button:active:not(:disabled) {
+            background-color: #FCD1A8;
+        }
+        .lesson-check-button:disabled {
+            background-color: #E5E7EB !important; 
+            color: #9CA3AF !important; 
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Result Drawer for Lesson Questions */
+        .lesson-result-drawer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.15);
+            padding: 24px 24px 30px 24px;
+            box-sizing: border-box;
+            z-index: 80;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .lesson-result-drawer.active {
+            transform: translateY(0);
+        }
+        .lesson-result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .lesson-result-icon {
+            width: 28px;
+            height: 28px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .lesson-result-icon.correct { background-color: #10B981; }
+        .lesson-result-icon.incorrect { background-color: #EF4444; }
+        .lesson-result-icon svg {
+            stroke: white;
+            width: 18px;
+            height: 18px;
+        }
+        .lesson-result-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .lesson-result-title.correct { color: #059669; }
+        .lesson-result-title.incorrect { color: #DC2626; }
+        .lesson-result-message {
+            font-size: 16px;
+            color: #374151;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .lesson-result-message strong {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .lesson-result-continue-button { 
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .lesson-result-continue-button.correct {
+            background-color: #10B981;
+            color: white;
+        }
+        .lesson-result-continue-button.correct:hover {
+            background-color: #059669;
+        }
+        .lesson-result-continue-button.incorrect {
+            background-color: #EF4444;
+            color: white;
+        }
+        .lesson-result-continue-button.incorrect:hover {
+            background-color: #DC2626;
+        }
+
+        /* General action button styling - for footer buttons */
+        .action-button {
+            width: 100%;
+            font-weight: 600;
+            padding: 0.875rem; 
+            border-radius: 0.75rem; 
+            font-size: 1rem; 
+            transition: background-color 0.2s;
+        }
+        .action-button.primary { 
+            background-color: #F97316; 
+            color: white;
+        }
+        .action-button.primary:hover {
+            background-color: #EA580C; 
+        }
+        .action-button.review { 
+            background-color: #F3F4F6; 
+            color: #4B5563; 
+            border: 1px solid #E5E7EB; 
+        }
+        .action-button.review:hover {
+            background-color: #E5E7EB; 
+        }
+
+        /* Styles for Matching Pairs Question Type in Lesson */
+        .lesson-matching-pairs-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 16px; 
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            flex-grow: 1; 
+        }
+        .lesson-matching-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+        .lesson-matching-item {
+            background-color: #F3F4F6;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 12px 15px; 
+            text-align: center;
+            font-size: 1rem; 
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+        }
+        .lesson-matching-item.selected {
+            border-color: #F97316; 
+            background-color: #FFF8F1;
+        }
+        .lesson-matching-item.correct {
+            border-color: #10B981; 
+            background-color: #D1FAE5; 
+            color: #065F46; 
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        .lesson-matching-item.incorrect {
+            border-color: #EF4444; 
+            background-color: #FEE2E2; 
+            color: #991B1B; 
+        }
+        .lesson-matching-item:disabled { 
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .review-incorrect-mascot-bubble { 
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: #F3F4F6;
+            padding: 10px 16px;
+            border-radius: 12px;
+            margin-bottom: 1.5rem; 
+        }
+        .review-incorrect-mascot-bubble p {
+            font-size: 16px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        /* Lesson Complete View Styles */
+        .lesson-complete-bubble {
+            background-color: #F3F4F6; 
+            padding: 12px 20px;
+            border-radius: 20px; 
+            font-size: 1.125rem; 
+            font-weight: 500;
+            color: #1F2937; 
+            margin-bottom: 1.5rem; 
+            text-align: center;
+            position: relative; 
+        }
+        .lesson-complete-bubble strong {
+            color: #F97316; 
+            font-weight: 700;
+        }
+        .lesson-complete-streak-section {
+            background-color: #FFFBEB; 
+            border-radius: 0.75rem; 
+            padding: 1rem; 
+            margin-top: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            width: 100%; 
+            text-align: center;
+            opacity: 0; 
+            transform: translateY(30px); 
+            transition: opacity 0.5s ease-out 0.5s, transform 0.5s ease-out 0.5s; 
+        }
+        .lesson-complete-streak-section.animate-slide-up {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .lesson-complete-streak-title {
+            font-size: 1.125rem; 
+            font-weight: 600;
+            color: #4B5563; 
+            margin-bottom: 0.5rem;
+        }
+        .lesson-complete-streak-title .streak-number { 
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .lesson-complete-streak-title .streak-number.animate-streak-number {
+            animation: streakNumberAppear 0.5s ease-out forwards 1s; 
+        }
+
+        .lesson-complete-streak-icons { 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            height: 120px; 
+        }
+        .lesson-complete-streak-icons img {
+            width: 120px; 
+            height: 120px; 
+        }
+        
+        .lesson-complete-streak-message {
+            font-size: 0.875rem; 
+            color: #6B7280; 
+        }
+
+        @keyframes streakNumberAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="page-content-wrapper">
+            <div id="lessonOverviewView" class="lesson-view lesson-overview-view">
+                <header class="p-4 flex items-center space-x-3 sticky top-0 bg-white z-10 shadow-sm flex-shrink-0">
+                    <a href="learning_path.html" id="backToLearningPathBtn" class="text-gray-600 hover:text-gray-800">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </a>
+                    <h1 class="text-xl font-semibold text-gray-800" id="lessonHeaderTitle">Home</h1> 
+                </header>
+
+                <main class="scrollable-content space-y-6">
+                    <section class="flex items-start space-x-4">
+                        <div class="lesson-header-image-container">
+                            <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747297464/Frame_17.png" alt="Lesson Cover Image">
+                        </div>
+                        <div class="flex-grow">
+                            <h2 class="text-xl font-bold text-gray-800" id="lessonOverviewTitle">Lesson Title</h2>
+                            <p class="text-sm text-gray-500 mb-2" id="lessonOverviewSubtitle">Lesson Subtitle</p>
+                            <div class="course-progress-container">
+                                <div class="course-progress-bar-wrapper">
+                                    <div class="course-progress-bar-background">
+                                        <div class="course-progress-bar-foreground" id="lessonDetailProgress" style="width: 0%;"></div>
+                                    </div>
+                                    <span class="course-progress-percentage" id="lessonDetailPercentage">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section>
+                        <span class="section-title-badge">Lesson Target</span>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm pl-1">
+                            <li>Target 1 for this lesson.</li>
+                            <li>Target 2 for this lesson.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <span class="section-title-badge">Vocabulary & Expression</span>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm pl-1">
+                            <li>Family</li>
+                            <li>Job</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <span class="section-title-badge">Grammar</span>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm pl-1">
+                            <li>This</li>
+                            <li>This is not</li>
+                        </ul>
+                    </section>
+                </main>
+
+                <footer class="p-4 sticky bottom-0 bg-white border-t border-gray-200 flex-shrink-0">
+                    <button id="letsLearnBtn" class="action-button primary">
+                        Let's Learn
+                    </button>
+                </footer>
+            </div>
+
+            <div id="lessonActualView" class="lesson-view lesson-actual-view"> 
+                <header class="lesson-question-header"> 
+                    <div class="lesson-question-header-top-row">
+                        <h1 class="lesson-question-header-title" id="actualLessonViewTitle">Lesson Title</h1> 
+                        <button id="backToOverviewBtn" class="lesson-question-header-close-btn">
+                            <i data-lucide="x" class="w-7 h-7"></i> 
+                        </button>
+                    </div>
+                    <div class="lesson-question-progress-bar-container" id="lessonQuestionProgressBar">
+                        </div>
+                </header>
+
+                <main class="lesson-view-content"> 
+                    <div class="lesson-question-instruction-area">
+                        <div class="lesson-mascot-icon">
+                            <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="Kindo Mascot">
+                        </div>
+                        <div class="lesson-question-instruction-text" id="lessonQuestionInstruction">
+                            </div>
+                    </div>
+
+                    <div class="lesson-question-stimulus" id="lessonQuestionStimulus">
+                        </div>
+
+                    <div class="lesson-question-options" id="lessonQuestionOptions">
+                        </div>
+                </main>
+
+                <footer class="p-4 sticky bottom-0 bg-white flex-shrink-0" id="lessonActualFooter"> 
+                    <button id="lessonCheckBtn" class="lesson-check-button" disabled>Check</button>
+                </footer>
+            </div>
+
+            <div id="lessonReviewIncorrectView" class="lesson-view lesson-review-incorrect-view">
+                <div class="review-incorrect-mascot-bubble">
+                     <div class="lesson-mascot-icon">
+                        <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="Kindo Mascot">
+                    </div>
+                    <p>Let’s review Not Correct answer</p>
+                </div>
+                <lottie-player src="https://res.cloudinary.com/middo-vn/raw/upload/v1747385594/reading.json" background="transparent" speed="1" style="width: 320px; height: 320px; margin-bottom: 1.5rem;" loop autoplay></lottie-player>
+                <button id="startReviewBtn" class="action-button primary w-full">OK</button>
+            </div>
+
+            <div id="lessonCompleteView" class="lesson-view lesson-complete-view"> 
+                <div class="lesson-complete-bubble">
+                    <p><strong>Amazing!</strong> You've finished today lesson</p>
+                </div>
+                <lottie-player id="lessonCompleteLottie" src="https://res.cloudinary.com/middo-vn/raw/upload/v1747385594/reading.json" background="transparent" speed="1" style="width: 250px; height: 250px; margin-bottom: 1rem;" loop autoplay></lottie-player>
+                
+                <div class="lesson-complete-streak-section">
+                    <h4 class="lesson-complete-streak-title">Streak Days <span id="lessonCompleteStreakDays" class="streak-number">0</span></h4>
+                    <div class="lesson-complete-streak-icons">
+                        <img id="lessonCompleteStreakIcon" src="https://res.cloudinary.com/middo-vn/image/upload/v1747378173/Artboard_2.png" alt="Streak Flame" style="width: 120px; height: 120px;">
+                    </div>
+                    <p class="lesson-complete-streak-message">Complete 7 days Streak to get a badge!</p>
+                </div>
+                <button id="backToHomepageBtn" class="action-button primary w-full">Back to homepage</button>
+            </div>
+
+
+            <div class="lesson-result-drawer" id="lessonResultDrawer">
+                <div class="lesson-result-header">
+                    <div class="lesson-result-icon" id="lessonResultDrawerIconContainer">
+                        </div>
+                    <h3 class="lesson-result-title" id="lessonResultDrawerTitle"></h3>
+                </div>
+                <p class="lesson-result-message" id="lessonResultDrawerMessage"></p>
+                <button type="button" class="lesson-result-continue-button" id="lessonResultContinueBtn">Continue</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons(); 
+
+        const lessonOverviewView = document.getElementById('lessonOverviewView');
+        const lessonActualView = document.getElementById('lessonActualView');
+        const lessonReviewIncorrectView = document.getElementById('lessonReviewIncorrectView'); 
+        const lessonCompleteView = document.getElementById('lessonCompleteView'); 
+        const letsLearnBtn = document.getElementById('letsLearnBtn');
+        const backToOverviewBtn = document.getElementById('backToOverviewBtn');
+        const backToLearningPathBtn = document.getElementById('backToLearningPathBtn');
+        const startReviewBtn = document.getElementById('startReviewBtn'); 
+        const backToHomepageBtn = document.getElementById('backToHomepageBtn'); 
+
+
+        const lessonQuestionProgressBar = document.getElementById('lessonQuestionProgressBar');
+        const lessonQuestionInstruction = document.getElementById('lessonQuestionInstruction');
+        const lessonQuestionStimulus = document.getElementById('lessonQuestionStimulus');
+        const lessonQuestionOptions = document.getElementById('lessonQuestionOptions');
+        const lessonCheckBtn = document.getElementById('lessonCheckBtn');
+        
+        const lessonHeaderTitleEl = document.getElementById('lessonHeaderTitle'); 
+        const lessonOverviewTitleEl = document.getElementById('lessonOverviewTitle'); 
+        const lessonOverviewSubtitleEl = document.getElementById('lessonOverviewSubtitle');
+        const lessonDetailProgressBar = document.getElementById('lessonDetailProgress');
+        const lessonDetailPercentageText = document.getElementById('lessonDetailPercentage');
+        const actualLessonViewTitleEl = document.getElementById('actualLessonViewTitle'); 
+
+        // Lesson Result Drawer Elements
+        const lessonResultDrawer = document.getElementById('lessonResultDrawer');
+        const lessonResultDrawerIconContainer = document.getElementById('lessonResultDrawerIconContainer');
+        const lessonResultDrawerTitle = document.getElementById('lessonResultDrawerTitle');
+        const lessonResultDrawerMessage = document.getElementById('lessonResultDrawerMessage');
+        const lessonResultContinueBtn = document.getElementById('lessonResultContinueBtn');
+
+        // Lesson Complete View Elements
+        const lessonCompleteStreakDaysEl = document.getElementById('lessonCompleteStreakDays');
+        const lessonCompleteStreakIconEl = document.getElementById('lessonCompleteStreakIcon');
+        const lessonCompleteStreakSectionEl = document.querySelector('.lesson-complete-streak-section');
+
+
+        let currentLessonId = localStorage.getItem('currentLessonId') || 'lesson_hoesaweon_02'; 
+        let currentLessonTitle = localStorage.getItem('currentLessonTitle') || "회사원 이 아니에요";
+        let currentLessonSubtitle = localStorage.getItem('currentLessonSubtitle') || "I'm not a company employee";
+        const TOTAL_LESSON_QUESTIONS = 2; 
+
+        let currentLessonQIndex = 0;
+        let lessonQUserAnswers = new Array(TOTAL_LESSON_QUESTIONS).fill(null); 
+        let lessonSelectedOption = null;
+        let lessonSelectedMatchingItem = { element: null, column: null, value: null, matchId: null }; 
+        let lessonMatchedPairCount = 0; 
+        let lessonAudioElement = null; 
+        let lessonCurrentPlaybackRate = 1.0; 
+
+
+        let actualLessonQuestions = []; 
+        let incorrectQuestionsToReview = []; 
+        let isCurrentlyReviewing = false; 
+
+        const iconCorrectSVG = `<svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
+        const iconIncorrectSVG = `<svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
+
+
+        function populateLessonQuestions() {
+            actualLessonQuestions = []; 
+            actualLessonQuestions.push({
+                id: `${currentLessonId}_q1`,
+                type: 'mcq_image', 
+                instruction: `Question 1/${TOTAL_LESSON_QUESTIONS}: Choose the right answer for this image.`,
+                stimulus: "https://res.cloudinary.com/middo-vn/image/upload/v1747381938/Flag_of_South_Korea.svg.png", 
+                options: [
+                    { text: `미국`, value: 'usa' },
+                    { text: `한국`, value: 'korea' },
+                    { text: `중국`, value: 'china' }
+                ],
+                correctAnswer: 'korea',
+                correctAnswerDisplay: '한국 (Korea)'
+            });
+            actualLessonQuestions.push({
+                id: `${currentLessonId}_q2`,
+                type: 'mcq_image', 
+                instruction: `Question 2/${TOTAL_LESSON_QUESTIONS}: Choose the right answer for this image.`,
+                stimulus: "https://res.cloudinary.com/middo-vn/image/upload/v1747382102/Flag_of_the_United_States.svg.png", 
+                options: [
+                    { text: `한국`, value: 'korea' },
+                    { text: `미국`, value: 'usa' },
+                    { text: `일본`, value: 'japan' }
+                ],
+                correctAnswer: 'usa',
+                correctAnswerDisplay: '미국 (USA)'
+            });
+        }
+
+        function updateLessonProgressDisplay(progressPercentage) {
+            if(lessonDetailProgressBar) lessonDetailProgressBar.style.width = progressPercentage + '%';
+            if(lessonDetailPercentageText) lessonDetailPercentageText.textContent = progressPercentage + '%';
+            updateLetsLearnButtonState(); 
+        }
+
+        function createLessonQuestionProgressBar(totalQuestions = TOTAL_LESSON_QUESTIONS) { 
+            lessonQuestionProgressBar.innerHTML = ''; 
+            for (let i = 0; i < totalQuestions; i++) {
+                const segment = document.createElement('div');
+                segment.classList.add('lesson-question-progress-segment');
+                lessonQuestionProgressBar.appendChild(segment);
+            }
+        }
+
+        function updateLessonQuestionProgressBar(answersArray = lessonQUserAnswers, qIndex = currentLessonQIndex) {
+            const segments = lessonQuestionProgressBar.querySelectorAll('.lesson-question-progress-segment');
+            segments.forEach((segment, index) => {
+                segment.classList.remove('answered', 'correct', 'incorrect', 'current'); 
+                if (answersArray[index] === true) { 
+                    segment.classList.add('answered', 'correct');
+                } else if (answersArray[index] === false) {
+                    segment.classList.add('answered', 'incorrect');
+                } else if (index === qIndex && answersArray[index] === null) { 
+                    segment.classList.add('current'); 
+                } else if (answersArray[index] !== null) { 
+                    segment.classList.add('answered'); 
+                }
+            });
+        }
+        
+        function completeLearningSession() {
+            const startTime = localStorage.getItem('lessonStartTime');
+            if (startTime) {
+                const sessionDurationSeconds = Math.round((Date.now() - parseInt(startTime, 10)) / 1000);
+                let totalLearningTimeInSeconds = parseInt(localStorage.getItem('totalLearningTimeInSeconds')) || 0;
+                totalLearningTimeInSeconds += sessionDurationSeconds;
+                localStorage.setItem('totalLearningTimeInSeconds', totalLearningTimeInSeconds.toString());
+                localStorage.removeItem('lessonStartTime');
+            }
+        }
+
+        function updateStreakAfterLessonCompletion(lessonId) {
+            let streakJustUpdatedTo1 = false;
+            if (lessonId === 'lesson_hoesaweon_02') { 
+                const today = new Date().toISOString().split('T')[0]; 
+                const lastStreakUpdate = localStorage.getItem('lastStreakUpdateDate');
+                let currentStreak = parseInt(localStorage.getItem('streakDays')) || 0;
+                
+                if (lastStreakUpdate !== today) {
+                    if (currentStreak === 0) streakJustUpdatedTo1 = true;
+                    currentStreak = 1; 
+                    localStorage.setItem('streakDays', currentStreak.toString()); 
+                    localStorage.setItem('lastStreakUpdateDate', today);
+                }
+            }
+            return streakJustUpdatedTo1;
+        }
+        
+        function displayLessonCompleteScreen(streakJustUpdatedTo1) {
+            lessonActualView.style.display = 'none'; 
+            lessonReviewIncorrectView.style.display = 'none'; 
+
+            const streakDays = parseInt(localStorage.getItem('streakDays')) || 0;
+            const streakNumberSpan = lessonCompleteStreakDaysEl; 
+
+            if (streakNumberSpan) { 
+                if (streakJustUpdatedTo1) {
+                    streakNumberSpan.textContent = '0'; 
+                    setTimeout(() => {
+                        streakNumberSpan.textContent = streakDays;
+                        streakNumberSpan.classList.add('animate-streak-number');
+                    }, 500); 
+                } else {
+                    streakNumberSpan.textContent = streakDays;
+                }
+            }
+            if (lessonCompleteStreakIconEl) {
+                if (streakDays === 0) {
+                    lessonCompleteStreakIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378173/Artboard_2.png";
+                } else if (streakDays >= 1 && streakDays <= 3) {
+                    lessonCompleteStreakIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378207/Artboard_2_1.png";
+                } else if (streakDays >= 4 && streakDays <= 6) {
+                    lessonCompleteStreakIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378262/Artboard_2_2.png";
+                } else { 
+                    lessonCompleteStreakIconEl.src = "https://res.cloudinary.com/middo-vn/image/upload/v1747378299/Artboard_2_3.png";
+                }
+            }
+            
+            if (lessonCompleteStreakSectionEl) {
+                lessonCompleteStreakSectionEl.classList.remove('animate-slide-up'); 
+                setTimeout(() => { 
+                    lessonCompleteStreakSectionEl.classList.add('animate-slide-up');
+                }, 500); 
+            }
+
+            lessonCompleteView.style.display = 'flex';
+            lessonCompleteView.style.transform = 'translateY(0)';
+            lessonCompleteView.style.opacity = '1';
+        }
+
+
+        function updateLetsLearnButtonState() {
+            if (!letsLearnBtn) return; 
+            const savedProgress = localStorage.getItem(`${currentLessonId}_progress`);
+            const progress = savedProgress ? parseInt(savedProgress, 10) : 0;
+            const savedQIndex = localStorage.getItem(`qIndex_${currentLessonId}`);
+            const qIndex = savedQIndex ? parseInt(savedQIndex, 10) : 0;
+
+            letsLearnBtn.classList.remove('primary', 'review', 'bg-orange-500', 'hover:bg-orange-600', 'lesson-action-button'); 
+            letsLearnBtn.classList.add('action-button'); 
+
+            if (progress === 100) {
+                letsLearnBtn.textContent = 'Review Lesson';
+                letsLearnBtn.classList.add('review');
+            } else if (qIndex > 0 && qIndex < TOTAL_LESSON_QUESTIONS) {
+                letsLearnBtn.textContent = 'Resume Lesson';
+                letsLearnBtn.classList.add('primary');
+            } else {
+                letsLearnBtn.textContent = "Let's Learn";
+                letsLearnBtn.classList.add('primary');
+            }
+        }
+
+        function showLessonResultDrawer(isCorrect, correctAnswerDisplay) {
+            lessonResultDrawerIconContainer.innerHTML = isCorrect ? iconCorrectSVG : iconIncorrectSVG;
+            lessonResultDrawerIconContainer.className = `lesson-result-icon ${isCorrect ? 'correct' : 'incorrect'}`;
+            lessonResultDrawerTitle.textContent = isCorrect ? "Correct!" : "Incorrect!";
+            lessonResultDrawerTitle.className = `lesson-result-title ${isCorrect ? 'correct' : 'incorrect'}`;
+            lessonResultDrawerMessage.innerHTML = isCorrect ? `Good job!` : `Correct answer: <strong>${correctAnswerDisplay}</strong>`;
+            lessonResultContinueBtn.className = `lesson-result-continue-button ${isCorrect ? 'correct' : 'incorrect'}`;
+            lessonResultDrawer.classList.add('active');
+        }
+
+        function hideLessonResultDrawer() {
+            lessonResultDrawer.classList.remove('active');
+        }
+
+        lessonResultContinueBtn.addEventListener('click', () => {
+            hideLessonResultDrawer();
+            currentLessonQIndex++; 
+            
+            const answersTargetArray = isCurrentlyReviewing ? lessonQUserAnswers : lessonQUserAnswers; 
+            
+            if (!isCurrentlyReviewing) {
+                localStorage.setItem(`qIndex_${currentLessonId}`, currentLessonQIndex.toString());
+                localStorage.setItem(`qAnswers_${currentLessonId}`, JSON.stringify(answersTargetArray));
+                const overallProgress = Math.round((currentLessonQIndex / TOTAL_LESSON_QUESTIONS) * 100);
+                localStorage.setItem(`${currentLessonId}_progress`, overallProgress.toString());
+                updateLessonProgressDisplay(overallProgress);
+            }
+            
+            loadLessonQuestion(currentLessonQIndex, isCurrentlyReviewing); 
+        });
+
+        startReviewBtn.addEventListener('click', () => {
+            lessonReviewIncorrectView.style.display = 'none'; 
+            lessonActualView.style.display = 'flex';      
+            lessonActualView.style.transform = 'translateY(0)'; 
+            lessonActualView.style.opacity = '1';
+            
+            incorrectQuestionsToReview = [];
+            const originalAnswersString = localStorage.getItem(`qAnswers_${currentLessonId}`);
+            const originalAnswers = originalAnswersString ? JSON.parse(originalAnswersString) : []; 
+
+            for(let i = 0; i < actualLessonQuestions.length; i++){
+                if(originalAnswers[i] === false) { 
+                    incorrectQuestionsToReview.push(actualLessonQuestions[i]);
+                }
+            }
+            
+            if (incorrectQuestionsToReview.length === 0) { 
+                console.warn("No incorrect answers to review, but review screen was shown. Fallback to overview.");
+                lessonActualView.style.display = 'none';
+                lessonOverviewView.classList.remove('slide-out'); 
+                lessonOverviewView.style.opacity = '1';
+                lessonOverviewView.style.transform = 'translateY(0)';
+                localStorage.setItem(`${currentLessonId}_progress`, '100');
+                updateLessonProgressDisplay(100);
+                displayLessonCompleteScreen(false); 
+                return;
+            }
+
+            isCurrentlyReviewing = true;
+            currentLessonQIndex = 0; 
+            lessonQUserAnswers = new Array(incorrectQuestionsToReview.length).fill(null); 
+            createLessonQuestionProgressBar(incorrectQuestionsToReview.length); 
+            updateLessonQuestionProgressBar(lessonQUserAnswers, 0); 
+            loadLessonQuestion(currentLessonQIndex, true); 
+        });
+
+
+        function loadLessonQuestion(qIndex, isReviewing = false) {
+            const questionsSource = isReviewing ? incorrectQuestionsToReview : actualLessonQuestions;
+            const totalQuestionsInSession = questionsSource.length;
+            const question = questionsSource[qIndex]; 
+
+            console.log(`Loading question ${qIndex + 1} of ${totalQuestionsInSession}. Reviewing: ${isReviewing}`);
+
+            if (qIndex >= totalQuestionsInSession || !question) { 
+                if (isReviewing) {
+                    const allReviewedCorrectly = lessonQUserAnswers.every(ans => ans === true);
+                    if (allReviewedCorrectly) {
+                        const streakUpdated = updateStreakAfterLessonCompletion(currentLessonId); 
+                        displayLessonCompleteScreen(streakUpdated);
+                        localStorage.setItem(`${currentLessonId}_progress`, '100');
+                        updateLessonProgressDisplay(100);
+                        completeLearningSession(); 
+                        localStorage.removeItem(`qIndex_${currentLessonId}`); 
+                        localStorage.removeItem(`qAnswers_${currentLessonId}`);
+                    } else {
+                        lessonActualView.style.display = 'none'; 
+                        lessonReviewIncorrectView.style.display = 'flex'; 
+                        lessonReviewIncorrectView.style.transform = 'translateY(0)';
+                        lessonReviewIncorrectView.style.opacity = '1';
+                    }
+                } else { 
+                    const hasIncorrectAnswers = lessonQUserAnswers.some(answer => answer === false);
+                    if (hasIncorrectAnswers) {
+                        lessonActualView.style.display = 'none'; 
+                        lessonReviewIncorrectView.style.display = 'flex'; 
+                        lessonReviewIncorrectView.style.transform = 'translateY(0)';
+                        lessonReviewIncorrectView.style.opacity = '1';
+                    } else { 
+                        const streakUpdated = updateStreakAfterLessonCompletion(currentLessonId);
+                        displayLessonCompleteScreen(streakUpdated);
+                        localStorage.setItem(`${currentLessonId}_progress`, '100');
+                        updateLessonProgressDisplay(100); 
+                        completeLearningSession(); 
+                        localStorage.removeItem(`qIndex_${currentLessonId}`);
+                        localStorage.removeItem(`qAnswers_${currentLessonId}`); 
+                    }
+                }
+                
+                if (lessonCheckBtn.textContent !== 'Back to Overview') { 
+                    lessonCheckBtn.textContent = 'Back to Overview';
+                    lessonCheckBtn.disabled = false;
+                    lessonCheckBtn.onclick = () => { 
+                        lessonActualView.style.display = 'none'; 
+                        lessonReviewIncorrectView.style.display = 'none'; 
+                        lessonCompleteView.style.display = 'none';
+                        lessonOverviewView.classList.remove('slide-out');
+                        lessonOverviewView.style.opacity = '1'; 
+                        lessonOverviewView.style.transform = 'translateY(0)';
+                        isCurrentlyReviewing = false; 
+                    };
+                }
+                updateLetsLearnButtonState(); 
+                return;
+            }
+            lessonQuestionInstruction.parentElement.style.display = 'flex'; 
+
+            lessonQuestionInstruction.textContent = question.instruction.replace(`/${TOTAL_LESSON_QUESTIONS}`, `/${totalQuestionsInSession}`);
+            lessonQuestionStimulus.innerHTML = ''; 
+            lessonQuestionOptions.innerHTML = '';
+            lessonSelectedOption = null; 
+            lessonSelectedMatchingItem = { element: null, column: null, value: null, matchId: null }; 
+            lessonMatchedPairCount = 0; 
+            lessonCheckBtn.disabled = true;
+            
+            if (question.type === 'matching_pairs') {
+                lessonCheckBtn.textContent = 'Continue'; 
+                lessonCheckBtn.onclick = () => handleMatchingPairsContinue(question, isReviewing); 
+            } else {
+                lessonCheckBtn.textContent = 'Check';
+                lessonCheckBtn.onclick = () => handleLessonQuestionAnswer(question, isReviewing); 
+            }
+            updateLessonQuestionProgressBar(isReviewing ? lessonQUserAnswers : lessonQUserAnswers, qIndex); 
+
+
+            if (question.type === 'mcq_image') {
+                const img = document.createElement('img');
+                img.src = question.stimulus;
+                img.alt = "Question Image";
+                img.onerror = function() { this.onerror=null; this.src='https://placehold.co/150x150/cccccc/969696?text=Image+Error'; };
+                lessonQuestionStimulus.appendChild(img);
+                renderLessonOptions(question.options);
+            } else if (question.type === 'mcq_text') {
+                lessonQuestionStimulus.textContent = question.stimulus;
+                renderLessonOptions(question.options);
+            } else if (question.type === 'writing_audio') {
+                lessonQuestionStimulus.innerHTML = `<p class="text-sm mb-2">Listen and type:</p> <em>(Audio player for ${question.stimulus} to be implemented)</em>`;
+                const inputField = document.createElement('input');
+                inputField.type = 'text';
+                inputField.classList.add('w-full', 'p-2', 'border', 'border-gray-300', 'rounded-md', 'text-center', 'text-lg', 'mt-2');
+                inputField.id = "lessonWritingInput";
+                inputField.oninput = () => { lessonCheckBtn.disabled = !inputField.value.trim(); };
+                lessonQuestionOptions.appendChild(inputField);
+            } else if (question.type === 'matching_pairs') {
+                lessonQuestionStimulus.innerHTML = ''; 
+                renderMatchingPairsLessonUI(question); 
+            } else if (question.type === 'mcq_audio') {
+                renderMCQAudioLessonUI(question);
+            }
+        }
+
+        function renderLessonOptions(optionsArray) {
+             optionsArray.forEach(opt => {
+                const optionButton = document.createElement('button');
+                optionButton.classList.add('lesson-question-option-btn');
+                optionButton.textContent = opt.text;
+                optionButton.dataset.value = opt.value;
+
+                optionButton.addEventListener('click', () => {
+                    lessonQuestionOptions.querySelectorAll('.lesson-question-option-btn').forEach(btn => btn.classList.remove('selected'));
+                    optionButton.classList.add('selected');
+                    lessonSelectedOption = opt.value;
+                    lessonCheckBtn.disabled = false;
+                });
+                lessonQuestionOptions.appendChild(optionButton);
+            });
+        }
+
+        function renderMatchingPairsLessonUI(question) {
+            lessonQuestionOptions.innerHTML = ''; 
+            lessonSelectedMatchingItem = { element: null, column: null, value: null, matchId: null }; 
+            lessonMatchedPairCount = 0; 
+
+            const matchingContainer = document.createElement('div');
+            matchingContainer.classList.add('lesson-matching-pairs-container');
+
+            const leftColumn = document.createElement('div');
+            leftColumn.classList.add('lesson-matching-column');
+            
+            const rightColumn = document.createElement('div');
+            rightColumn.classList.add('lesson-matching-column');
+
+            const shuffledPairs = [...question.pairs].sort(() => Math.random() - 0.5);
+            let leftItemsData = [];
+            let rightItemsData = [];
+
+            shuffledPairs.forEach(pair => {
+                leftItemsData.push({ text: pair.left, id: pair.id + '_left', matchId: pair.matchId });
+                rightItemsData.push({ text: pair.right, id: pair.id + '_right', matchId: pair.matchId });
+            });
+
+            leftItemsData.sort(() => Math.random() - 0.5);
+            rightItemsData.sort(() => Math.random() - 0.5);
+
+            leftItemsData.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.textContent = item.text;
+                itemEl.classList.add('lesson-matching-item');
+                itemEl.dataset.column = 'left';
+                itemEl.dataset.matchId = item.matchId; 
+                itemEl.dataset.id = item.id;
+                itemEl.addEventListener('click', handleLessonMatchingItemClick);
+                leftColumn.appendChild(itemEl);
+            });
+
+            rightItemsData.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.textContent = item.text;
+                itemEl.classList.add('lesson-matching-item');
+                itemEl.dataset.column = 'right';
+                itemEl.dataset.matchId = item.matchId;
+                itemEl.dataset.id = item.id;
+                itemEl.addEventListener('click', handleLessonMatchingItemClick);
+                rightColumn.appendChild(itemEl);
+            });
+
+            matchingContainer.appendChild(leftColumn);
+            matchingContainer.appendChild(rightColumn);
+            lessonQuestionOptions.appendChild(matchingContainer);
+        }
+
+        function handleLessonMatchingItemClick(event) {
+            const clickedItem = event.currentTarget; 
+            if (clickedItem.classList.contains('correct') || clickedItem.disabled) {
+                return;
+            }
+
+            const clickedColumn = clickedItem.dataset.column;
+            const clickedMatchId = clickedItem.dataset.matchId;
+            
+            if (lessonSelectedMatchingItem.element) {
+                if (lessonSelectedMatchingItem.element === clickedItem) { 
+                    clickedItem.classList.remove('selected');
+                    lessonSelectedMatchingItem = { element: null, column: null, value: null, matchId: null };
+                } else if (lessonSelectedMatchingItem.column !== clickedColumn) { 
+                    if (lessonSelectedMatchingItem.matchId === clickedMatchId) { 
+                        lessonSelectedMatchingItem.element.classList.add('correct');
+                        clickedItem.classList.add('correct');
+                        lessonSelectedMatchingItem.element.disabled = true;
+                        clickedItem.disabled = true;
+                        lessonSelectedMatchingItem.element.classList.remove('selected');
+                        
+                        lessonMatchedPairCount++;
+                        const question = isCurrentlyReviewing ? incorrectQuestionsToReview[currentLessonQIndex] : actualLessonQuestions[currentLessonQIndex];
+                        if (lessonMatchedPairCount === question.pairs.length) {
+                            lessonCheckBtn.disabled = false; 
+                        }
+                        lessonSelectedMatchingItem = { element: null, column: null, value: null, matchId: null }; 
+                    } else { 
+                        lessonSelectedMatchingItem.element.classList.add('incorrect');
+                        clickedItem.classList.add('incorrect');
+                        
+                        const firstItem = lessonSelectedMatchingItem.element; 
+                        lessonSelectedMatchingItem = { element: null, column: null, value: null, matchId: null }; 
+
+                        setTimeout(() => {
+                            if (firstItem) firstItem.classList.remove('incorrect', 'selected');
+                            clickedItem.classList.remove('incorrect', 'selected');
+                        }, 800);
+                    }
+                } else { 
+                    lessonSelectedMatchingItem.element.classList.remove('selected'); 
+                    clickedItem.classList.add('selected'); 
+                    lessonSelectedMatchingItem = { element: clickedItem, column: clickedColumn, value: clickedItem.textContent, matchId: clickedMatchId };
+                }
+            } else { 
+                clickedItem.classList.add('selected');
+                lessonSelectedMatchingItem = { element: clickedItem, column: clickedColumn, value: clickedItem.textContent, matchId: clickedMatchId };
+            }
+        }
+
+
+        function handleMatchingPairsContinue(currentQuestionData, isReviewing = false){
+            const answersTargetArray = isReviewing ? lessonQUserAnswers : lessonQUserAnswers; 
+            answersTargetArray[currentLessonQIndex] = true; 
+            updateLessonQuestionProgressBar(answersTargetArray); 
+            
+            currentLessonQIndex++; 
+            if (!isReviewing) {
+                localStorage.setItem(`qIndex_${currentLessonId}`, currentLessonQIndex.toString());
+                localStorage.setItem(`qAnswers_${currentLessonId}`, JSON.stringify(answersTargetArray));
+                const overallProgress = Math.round((currentLessonQIndex / TOTAL_LESSON_QUESTIONS) * 100);
+                localStorage.setItem(`${currentLessonId}_progress`, overallProgress.toString());
+                updateLessonProgressDisplay(overallProgress);
+            }
+            
+            loadLessonQuestion(currentLessonQIndex, isReviewing); 
+        }
+
+        function renderMCQAudioLessonUI(question) {
+            lessonQuestionStimulus.innerHTML = ''; 
+            lessonQuestionOptions.innerHTML = ''; 
+
+            if (question.audioNote) {
+                const noteEl = document.createElement('p');
+                noteEl.classList.add('lesson-audio-note');
+                noteEl.textContent = question.audioNote;
+                lessonQuestionStimulus.appendChild(noteEl);
+            }
+
+            const audioControlsContainer = document.createElement('div');
+            audioControlsContainer.classList.add('lesson-audio-controls', 'mb-4');
+
+            const playBtn = document.createElement('button');
+            playBtn.id = `lessonPlayAudioBtn_q${currentLessonQIndex}`;
+            playBtn.classList.add('lesson-play-audio-btn');
+            playBtn.innerHTML = `<i data-lucide="volume-2" class="w-5 h-5"></i> Start Listening`;
+            
+            if(lessonAudioElement) { 
+                lessonAudioElement.pause();
+                lessonAudioElement.removeAttribute('src');
+                lessonAudioElement.load();
+                lessonAudioElement = null;
+            }
+            lessonAudioElement = new Audio(question.stimulus);
+            lessonAudioElement.oncanplaythrough = () => { playBtn.disabled = false; };
+            lessonAudioElement.onerror = () => { 
+                playBtn.textContent = "Audio Error"; 
+                playBtn.disabled = true;
+                console.error("Error loading audio:", question.stimulus);
+            };
+            lessonAudioElement.onended = () => {
+                playBtn.innerHTML = `<i data-lucide="volume-2" class="w-5 h-5"></i> Replay`;
+                lucide.createIcons(); 
+            };
+            playBtn.disabled = true; 
+
+            playBtn.onclick = () => {
+                if (lessonAudioElement.paused) {
+                    lessonAudioElement.playbackRate = lessonCurrentPlaybackRate;
+                    lessonAudioElement.play();
+                    playBtn.innerHTML = `<i data-lucide="pause-circle" class="w-5 h-5"></i> Playing...`;
+                } else {
+                    lessonAudioElement.pause();
+                    lessonAudioElement.currentTime = 0; 
+                    playBtn.innerHTML = `<i data-lucide="volume-2" class="w-5 h-5"></i> Start Listening`;
+                }
+                lucide.createIcons();
+            };
+
+            const speedBtn = document.createElement('button');
+            speedBtn.id = `lessonSpeedBtn_q${currentLessonQIndex}`;
+            speedBtn.classList.add('lesson-audio-speed-btn');
+            speedBtn.textContent = lessonCurrentPlaybackRate === 1.0 ? '1x' : '0.5x';
+            speedBtn.onclick = () => {
+                if (lessonAudioElement && lessonAudioElement.paused) { 
+                    lessonCurrentPlaybackRate = (lessonCurrentPlaybackRate === 1.0) ? 0.5 : 1.0;
+                    speedBtn.textContent = lessonCurrentPlaybackRate === 1.0 ? '1x' : '0.5x';
+                } else if (lessonAudioElement && !lessonAudioElement.paused) {
+                    console.log("Cannot change speed while audio is playing.");
+                }
+            };
+
+            audioControlsContainer.appendChild(playBtn);
+            audioControlsContainer.appendChild(speedBtn);
+            lessonQuestionStimulus.appendChild(audioControlsContainer);
+            
+            renderLessonOptions(question.options); 
+            lucide.createIcons(); 
+        }
+
+
+        function handleLessonQuestionAnswer(currentQuestionData, isReviewing = false) {
+            let isCorrect = false;
+            let userAnswer = lessonSelectedOption;
+            const answersTargetArray = isReviewing ? lessonQUserAnswers : lessonQUserAnswers; 
+
+            if (currentQuestionData.type === 'writing_audio') {
+                const inputField = document.getElementById('lessonWritingInput');
+                userAnswer = inputField ? inputField.value.trim() : '';
+                if (!userAnswer) { 
+                    lessonCheckBtn.disabled = true;
+                    return;
+                }
+                isCorrect = userAnswer.toLowerCase() === currentQuestionData.correctAnswer.toLowerCase();
+            } else { 
+                 if (!lessonSelectedOption) return; 
+                isCorrect = lessonSelectedOption === currentQuestionData.correctAnswer;
+            }
+            
+            answersTargetArray[currentLessonQIndex] = isCorrect; 
+            updateLessonQuestionProgressBar(answersTargetArray); 
+            
+            showLessonResultDrawer(isCorrect, currentQuestionData.correctAnswerDisplay || currentQuestionData.correctAnswer); 
+        }
+
+
+        if (letsLearnBtn) {
+            letsLearnBtn.addEventListener('click', () => {
+                if (actualLessonViewTitleEl) { 
+                    actualLessonViewTitleEl.textContent = currentLessonTitle;
+                }
+                lessonOverviewView.classList.add('slide-out'); 
+                lessonActualView.classList.add('slide-in');
+
+                let startIndex = 0;
+                const savedProgress = localStorage.getItem(`${currentLessonId}_progress`);
+                const progress = savedProgress ? parseInt(savedProgress, 10) : 0;
+                isCurrentlyReviewing = false; 
+
+                if (progress === 100 && letsLearnBtn.textContent === 'Review Lesson') { 
+                    localStorage.removeItem(`qIndex_${currentLessonId}`);
+                    localStorage.removeItem(`qAnswers_${currentLessonId}`);
+                    localStorage.setItem(`${currentLessonId}_progress`, '0'); 
+                    updateLessonProgressDisplay(0); 
+                    lessonQUserAnswers = new Array(TOTAL_LESSON_QUESTIONS).fill(null);
+                } else {
+                    const savedQIndex = localStorage.getItem(`qIndex_${currentLessonId}`);
+                    const savedQAnswers = localStorage.getItem(`qAnswers_${currentLessonId}`);
+                    if (savedQIndex !== null && savedQAnswers !== null) {
+                        startIndex = parseInt(savedQIndex, 10);
+                        lessonQUserAnswers = JSON.parse(savedQAnswers);
+                        if (lessonQUserAnswers.length !== TOTAL_LESSON_QUESTIONS) {
+                            const tempAnswers = new Array(TOTAL_LESSON_QUESTIONS).fill(null);
+                            for(let i=0; i < Math.min(lessonQUserAnswers.length, TOTAL_LESSON_QUESTIONS); i++) {
+                                tempAnswers[i] = lessonQUserAnswers[i];
+                            }
+                            lessonQUserAnswers = tempAnswers;
+                        }
+                        if (startIndex >= TOTAL_LESSON_QUESTIONS) { 
+                            startIndex = 0;
+                            lessonQUserAnswers = new Array(TOTAL_LESSON_QUESTIONS).fill(null);
+                        }
+                    } else {
+                        lessonQUserAnswers = new Array(TOTAL_LESSON_QUESTIONS).fill(null);
+                    }
+                }
+                currentLessonQIndex = startIndex;
+                
+                createLessonQuestionProgressBar(); 
+                updateLessonQuestionProgressBar(); 
+                loadLessonQuestion(currentLessonQIndex);
+            });
+        }
+
+        if (backToOverviewBtn) { 
+            backToOverviewBtn.addEventListener('click', () => {
+                if(lessonAudioElement) lessonAudioElement.pause(); 
+                completeLearningSession(); 
+                lessonActualView.classList.remove('slide-in'); 
+                lessonOverviewView.classList.remove('slide-out'); 
+                updateLetsLearnButtonState(); 
+                isCurrentlyReviewing = false; 
+            });
+        }
+
+        if (backToLearningPathBtn) { 
+             backToLearningPathBtn.addEventListener('click', (e) => {
+                e.preventDefault(); 
+                if(lessonAudioElement) lessonAudioElement.pause(); 
+                completeLearningSession(); 
+                window.location.href = 'learning_path.html';
+            });
+        }
+        
+        if(startReviewBtn) {
+            startReviewBtn.addEventListener('click', () => {
+                lessonReviewIncorrectView.style.display = 'none'; 
+                lessonActualView.style.display = 'flex';      
+                lessonActualView.style.transform = 'translateY(0)'; 
+                lessonActualView.style.opacity = '1';
+                
+                incorrectQuestionsToReview = [];
+                const originalAnswersString = localStorage.getItem(`qAnswers_${currentLessonId}`);
+                const originalAnswers = originalAnswersString ? JSON.parse(originalAnswersString) : []; 
+
+                for(let i = 0; i < actualLessonQuestions.length; i++){
+                    if(originalAnswers[i] === false) { 
+                        incorrectQuestionsToReview.push(actualLessonQuestions[i]);
+                    }
+                }
+                
+                if (incorrectQuestionsToReview.length === 0) { 
+                    console.warn("No incorrect answers to review, but review screen was shown. Fallback to overview.");
+                    lessonActualView.style.display = 'none';
+                    lessonOverviewView.classList.remove('slide-out'); 
+                    lessonOverviewView.style.opacity = '1';
+                    lessonOverviewView.style.transform = 'translateY(0)';
+                    localStorage.setItem(`${currentLessonId}_progress`, '100');
+                    updateLessonProgressDisplay(100);
+                    displayLessonCompleteScreen(false); 
+                    return;
+                }
+
+                isCurrentlyReviewing = true;
+                currentLessonQIndex = 0; 
+                lessonQUserAnswers = new Array(incorrectQuestionsToReview.length).fill(null); 
+                createLessonQuestionProgressBar(incorrectQuestionsToReview.length); 
+                updateLessonQuestionProgressBar(lessonQUserAnswers, 0); 
+                loadLessonQuestion(currentLessonQIndex, true); 
+            });
+        }
+
+        // Add event listener for the "Back to homepage" button on the complete screen
+        if (backToHomepageBtn) {
+            backToHomepageBtn.addEventListener('click', () => {
+                window.location.href = 'learning_path.html';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentLessonId = localStorage.getItem('currentLessonId') || 'lesson_hoesaweon_02'; 
+            currentLessonTitle = localStorage.getItem('currentLessonTitle') || "회사원 이 아니에요";
+            currentLessonSubtitle = localStorage.getItem('currentLessonSubtitle') || "I'm not a company employee";
+            
+            populateLessonQuestions(); 
+
+            if(lessonHeaderTitleEl) lessonHeaderTitleEl.textContent = "Home"; 
+            if(lessonOverviewTitleEl) lessonOverviewTitleEl.textContent = currentLessonTitle;
+            if(lessonOverviewSubtitleEl) lessonOverviewSubtitleEl.textContent = currentLessonSubtitle;
+            if(actualLessonViewTitleEl) actualLessonViewTitleEl.textContent = currentLessonTitle; 
+            
+            const savedProgress = localStorage.getItem(`${currentLessonId}_progress`);
+            const progress = savedProgress ? parseInt(savedProgress, 10) : 0;
+            updateLessonProgressDisplay(progress);
+            updateLetsLearnButtonState(); 
+        });
+
+    </script>
+</body>
+</html>

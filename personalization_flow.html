@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindo - Cá nhân hóa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+        }
+
+        .device-frame {
+            width: 100%;
+            max-width: 414px; 
+            height: 100vh;
+            max-height: 896px; 
+            background-color: #FEFEFE; 
+            position: relative;
+            overflow: hidden; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            display: flex; 
+            flex-direction: column;
+            border-radius: 38px; 
+            box-sizing: border-box;
+        }
+
+        .page-content-wrapper { 
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column; 
+            padding: 20px 20px 30px 20px;
+            box-sizing: border-box;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 30px;
+            padding: 0 10px;
+            flex-shrink: 0; 
+        }
+
+        .progress-segment {
+            height: 6px;
+            flex-grow: 1;
+            background-color: #E5E7EB;
+            border-radius: 3px;
+        }
+
+        .progress-segment.active {
+            background-color: #374151;
+        }
+        
+        .question-flow-container { 
+            width: 100%;
+            flex-grow: 1; 
+            position: relative; 
+            overflow: hidden; 
+            box-sizing: border-box; 
+        }
+
+        .question-slider-wrapper { 
+            display: flex; 
+            height: 100%;
+            transition: transform 0.4s ease-out; 
+        }
+
+        .question-section { 
+            height: 100%; 
+            flex-shrink: 0; 
+            display: flex;
+            flex-direction: column; 
+            box-sizing: border-box; 
+            padding: 0 5px; 
+        }
+
+        .question-content { 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+            width: 100%; 
+            overflow-y: auto; 
+            padding-bottom: 10px; 
+        }
+
+        .question-header {
+            display: flex;
+            align-items: flex-start; 
+            gap: 12px; 
+            margin-bottom: 30px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .mascot-icon {
+            width: 48px; 
+            height: 48px;
+            flex-shrink: 0; 
+        }
+        .mascot-icon img { 
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .question-text-bubble {
+            background-color: #F3F4F6; 
+            padding: 12px 16px;
+            border-radius: 12px; 
+            flex-grow: 1;
+        }
+        .question-text {
+            font-size: 18px; 
+            font-weight: 600;
+            color: #1F2937; 
+            line-height: 1.5;
+        }
+        .question-text .highlight {
+            color: #F97316; 
+        }
+
+        .options-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px; 
+        }
+
+        .option-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB; 
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative; 
+        }
+        .option-card.selected {
+            border-color: #F97316; 
+            box-shadow: inset 0 0 0 2px #F97316; 
+        }
+
+        .radio-button {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #D1D5DB; 
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .radio-button .inner-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #F97316; 
+            display: none; 
+        }
+        .option-card.selected .radio-button .inner-dot {
+            display: block; 
+        }
+        .option-card.selected .radio-button {
+            border-color: #F97316; 
+        }
+
+        .option-text-content {
+            flex-grow: 1;
+            text-align: left;
+            padding-right: 70px; 
+        }
+        .option-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937; 
+            margin-bottom: 2px;
+        }
+        .option-card.selected .option-title {
+            color: #F97316; 
+        }
+        .option-description {
+            font-size: 14px;
+            color: #4B5563; 
+        }
+
+        .level-indicator, .option-icon-container, .difficulty-label { 
+            width: auto; 
+            min-width: 60px; 
+            height: 24px; 
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; 
+            flex-shrink: 0;
+            font-size: 14px; 
+            color: #4B5563; 
+        }
+        .level-indicator { height: 10px; justify-content: flex-start; } 
+        .option-icon-container { font-size: 20px; justify-content: center; }
+        
+        .recommend-badge {
+            position: absolute;
+            top: 8px; 
+            right: 8px; 
+            background-color: #374151; 
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px; 
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            line-height: 1; 
+        }
+        .recommend-badge .emoji { 
+            margin-right: 4px;
+            font-size: 12px; 
+        }
+
+        .level-fill {
+            height: 100%;
+            background-color: #F97316; 
+            border-radius: 5px;
+        }
+        .level-fill.beginner { width: 33%; }
+        .level-fill.intermediate { width: 66%; }
+        .level-fill.advance { width: 100%; }
+        
+        .navigation-buttons-footer-main {
+            width: 100%;
+            padding-top: 20px; 
+            margin-top: auto; 
+            flex-shrink: 0; 
+        }
+        .action-button-footer { 
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; 
+        }
+        .next-button-footer {
+            background-color: #F97316; 
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        .next-button-footer:hover {
+            background-color: #EA580C; 
+        }
+        .previous-button-footer { 
+            color: #4B5563;
+            margin-top: 16px; 
+            background-color: transparent; 
+        }
+        .previous-button-footer:hover {
+            color: #1F2937;
+        }
+        .hidden-button {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="page-content-wrapper">
+            <div class="progress-bar-container">
+                <div class="progress-segment active" data-step="1"></div>
+                <div class="progress-segment" data-step="2"></div>
+                <div class="progress-segment" data-step="3"></div>
+                <div class="progress-segment" data-step="4"></div>
+            </div>
+
+            <div class="question-flow-container">
+                <div class="question-slider-wrapper" id="questionSliderWrapper">
+                    <div class="question-section" id="question1"> 
+                        <div class="question-content">
+                            <div class="question-header">
+                                <div class="mascot-icon">
+                                    <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="[Hình ảnh linh vật Kindo]">
+                                </div>
+                                <div class="question-text-bubble">
+                                    <p class="question-text">How <span class="highlight">well</span> can you use Korean?</p>
+                                </div>
+                            </div>
+                            <div class="options-container">
+                                <div class="option-card" data-value="beginner">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">BEGINNER</h3>
+                                        <p class="option-description">I'm a new learner</p>
+                                    </div>
+                                    <div class="level-indicator">
+                                        <div class="level-fill beginner"></div>
+                                    </div>
+                                </div>
+                                <div class="option-card" data-value="intermediate"> 
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">INTERMEDIATE</h3>
+                                        <p class="option-description">I'm familiar with Korean</p>
+                                    </div>
+                                    <div class="level-indicator">
+                                        <div class="level-fill intermediate"></div>
+                                    </div>
+                                </div>
+                                <div class="option-card" data-value="advance">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">ADVANCE</h3>
+                                        <p class="option-description">I can use Korean fluently</p>
+                                    </div>
+                                    <div class="level-indicator">
+                                        <div class="level-fill advance"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question-section" id="question2">
+                        <div class="question-content">
+                            <div class="question-header">
+                                <div class="mascot-icon">
+                                    <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="[Hình ảnh linh vật Kindo]">
+                                </div>
+                                <div class="question-text-bubble">
+                                    <p class="question-text">Your <span class="highlight">purpose</span> of learning Korean is?</p>
+                                </div>
+                            </div>
+                            <div class="options-container">
+                                <div class="option-card" data-value="study">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">Study Supports</h3>
+                                    </div>
+                                    <div class="option-icon-container">📖</div>
+                                </div>
+                                <div class="option-card" data-value="work">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">Work Supports</h3>
+                                    </div>
+                                    <div class="option-icon-container">💼</div>
+                                </div>
+                                <div class="option-card" data-value="travelling">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">Travelling</h3>
+                                    </div>
+                                    <div class="option-icon-container">✈️</div>
+                                </div>
+                                 <div class="option-card" data-value="hobby">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">Hobby</h3>
+                                    </div>
+                                    <div class="option-icon-container">❤️</div>
+                                </div>
+                                <div class="option-card" data-value="others">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">Others</h3>
+                                    </div>
+                                    <div class="option-icon-container">💬</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question-section" id="question3">
+                        <div class="question-content">
+                            <div class="question-header">
+                                <div class="mascot-icon">
+                                    <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="[Hình ảnh linh vật Kindo]">
+                                </div>
+                                <div class="question-text-bubble">
+                                    <p class="question-text">Which <span class="highlight">duration</span> is suitable for you to learn Korean per day?</p>
+                                </div>
+                            </div>
+                            <div class="options-container">
+                                <div class="option-card" data-value="5_mins">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">5 mins / day</h3>
+                                    </div>
+                                    <div class="difficulty-label">Easiest</div>
+                                </div>
+                                <div class="option-card" data-value="10_mins">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">10 mins / day</h3>
+                                    </div>
+                                    <div class="difficulty-label">Easy</div>
+                                </div>
+                                <div class="option-card" data-value="15_mins">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">15 mins / day</h3>
+                                    </div>
+                                    <div class="difficulty-label">Medium</div>
+                                </div>
+                                 <div class="option-card" data-value="20_mins">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">20 mins / day</h3>
+                                    </div>
+                                    <div class="difficulty-label">Hard</div>
+                                </div>
+                                <div class="option-card" data-value="30_mins">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">30 mins / day</h3>
+                                    </div>
+                                    <div class="difficulty-label">Extremely Hard</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question-section" id="question4">
+                        <div class="question-content">
+                            <div class="question-header">
+                                <div class="mascot-icon">
+                                    <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="[Hình ảnh linh vật Kindo]">
+                                </div>
+                                <div class="question-text-bubble">
+                                    <p class="question-text"><span class="highlight">Finally!</span> Where would you like to start your learning path?</p>
+                                </div>
+                            </div>
+                            <div class="options-container">
+                                <div class="option-card" data-value="start_beginning">
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">START FROM BEGINNING</h3>
+                                        <p class="option-description">Learn from the beginning of the Self - Learning Course</p>
+                                    </div>
+                                </div>
+                                <div class="option-card" data-value="take_test"> 
+                                    <div class="radio-button"><div class="inner-dot"></div></div>
+                                    <div class="option-text-content">
+                                        <h3 class="option-title">TAKE A TEST</h3>
+                                        <p class="option-description">Let's us identify the fittest starting point for you</p>
+                                    </div>
+                                    <span class="recommend-badge">
+                                        <span class="emoji">👍</span> Recommend
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> </div> 
+            <div class="navigation-buttons-footer-main">
+                <button type="button" class="action-button-footer next-button-footer" id="mainNextButton">
+                    Next
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                </button>
+                <a href="#" class="action-button-footer previous-button-footer hidden-button" id="mainPrevButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    Previous Question
+                </a>
+            </div>
+
+        </div> </div> <script>
+        const questionSliderWrapper = document.getElementById('questionSliderWrapper');
+        const questionSections = document.querySelectorAll('.question-section');
+        const progressSegments = document.querySelectorAll('.progress-segment');
+        const mainNextButton = document.getElementById('mainNextButton'); 
+        const mainPrevButton = document.getElementById('mainPrevButton'); 
+        let currentQuestionIndex = 0;
+        const totalQuestions = questionSections.length;
+
+        questionSliderWrapper.style.width = `${totalQuestions * 100}%`;
+        questionSections.forEach(section => {
+            section.style.width = `${100 / totalQuestions}%`;
+        });
+
+        function updateProgressBar(activeIndex) {
+            progressSegments.forEach((segment, index) => {
+                segment.classList.toggle('active', index <= activeIndex);
+            });
+        }
+
+        function showQuestion(indexToShow) {
+            if (indexToShow < 0 || indexToShow >= totalQuestions) return;
+
+            questionSliderWrapper.style.transform = `translateX(-${indexToShow * (100 / totalQuestions)}%)`;
+            currentQuestionIndex = indexToShow;
+            updateProgressBar(currentQuestionIndex);
+
+            if (currentQuestionIndex === 0) {
+                mainPrevButton.classList.add('hidden-button');
+                mainPrevButton.href = "personalize_welcome.html"; 
+            } else {
+                mainPrevButton.classList.remove('hidden-button');
+                mainPrevButton.href = "#"; 
+            }
+        }
+        
+        questionSections.forEach((section, sectionIndex) => {
+            const optionCards = section.querySelectorAll('.option-card');
+            optionCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    optionCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    console.log(`Question ${sectionIndex + 1} - Selected:`, card.dataset.value);
+                });
+            });
+        });
+
+        mainNextButton.addEventListener('click', () => {
+            const currentSection = questionSections[currentQuestionIndex];
+            const selectedOption = currentSection.querySelector('.option-card.selected');
+            
+            if (currentSection.id === 'question4' && selectedOption && selectedOption.dataset.value === 'take_test') {
+                console.log('Redirecting to Level Test page...');
+                window.location.href = "level_test.html";
+                return; 
+            }
+
+            if (selectedOption || currentSection.id === 'question1' || currentSection.id === 'question4' ) { 
+                 if (currentQuestionIndex < totalQuestions - 1) {
+                    showQuestion(currentQuestionIndex + 1);
+                } else {
+                    console.log('End of personalization flow.');
+                }
+            } else {
+                alert('Please select an option.');
+            }
+        });
+        
+        mainPrevButton.addEventListener('click', (e) => {
+            if (currentQuestionIndex > 0) { 
+                 e.preventDefault(); 
+                showQuestion(currentQuestionIndex - 1);
+            } else {
+                 window.location.href = mainPrevButton.href; 
+            }
+        });
+
+
+        function initializeFlow() {
+            showQuestion(0); 
+        }
+        
+         document.addEventListener('DOMContentLoaded', initializeFlow);
+
+    </script>
+</body>
+</html>

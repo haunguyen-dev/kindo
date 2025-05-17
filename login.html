@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindo - Đăng nhập</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f2f5; 
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+        }
+
+        .device-frame {
+            width: 100%;
+            max-width: 414px; 
+            height: 100vh;
+            max-height: 896px; 
+            background-color: #FEFEFE; 
+            position: relative; 
+            overflow: hidden; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 38px; 
+            padding: 40px 20px; 
+            box-sizing: border-box;
+        }
+
+        .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 350px; 
+            z-index: 1; 
+        }
+
+        .logo-container {
+            margin-bottom: 24px; 
+            display: flex;
+            justify-content: center;
+        }
+
+        .login-logo {
+            height: 200px;         
+            width: auto;           
+            max-width: 100%;       
+            object-fit: contain;   
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            color: #4B5563; 
+            max-width: 300px;
+            margin-bottom: 48px; 
+            line-height: 1.6;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .auth-button:last-child {
+            margin-bottom: 0;
+        }
+
+        .kindo-signin-button {
+            background-color: #F97316; 
+            color: white;
+        }
+        .kindo-signin-button:hover {
+            background-color: #EA580C; 
+        }
+
+        .google-signin-button {
+            background-color: #FFFFFF; 
+            color: #374151; 
+            border: 1px solid #D1D5DB; 
+        }
+        .google-signin-button:hover {
+            background-color: #F9FAFB; 
+        }
+        .google-signin-button svg {
+            margin-right: 12px; 
+            width: 20px;
+            height: 20px;
+        }
+
+        .drawer-overlay {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(255, 255, 255, 0.5); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            z-index: 40; 
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer {
+            position: absolute; 
+            bottom: 0;
+            left: 0; 
+            width: 100%; 
+            background-color: white; 
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.15);
+            padding: 24px 24px 30px 24px; 
+            box-sizing: border-box;
+            z-index: 50; 
+            transform: translateY(100%); 
+            transition: transform 0.3s ease-in-out;
+            max-height: 90%; 
+            overflow-y: auto; 
+        }
+        .drawer.active {
+            transform: translateY(0); 
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .drawer-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .close-drawer-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #6B7280;
+            cursor: pointer;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 44px; 
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #1F2937;
+        }
+        .input-field::placeholder {
+            color: #9CA3AF;
+        }
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            width: 20px;
+            height: 20px;
+        }
+        .password-toggle-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        .options-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #4B5563;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 8px;
+            accent-color: #F97316; 
+        }
+        
+        .drawer-button { 
+            background-color: #F97316;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            margin-bottom: 16px;
+        }
+        .drawer-links {
+            text-align: center;
+            font-size: 14px;
+        }
+        .drawer-links a {
+            color: #F97316;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        .drawer-links a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="login-content">
+            <div class="logo-container">
+                <img src="https://res.cloudinary.com/middo-vn/image/upload/v1747204806/Logo-Vertical.png" alt="[Hình ảnh Logo Kindo]" class="login-logo" onerror="this.onerror=null;this.src='https://placehold.co/169x200/FFE8D6/F97316?text=Kindo%0ALogo+Error&font=Open+Sans';">
+            </div>
+            <p class="login-subtitle">
+                Enjoying an integrated learning center for Korean and Korean culture through Online
+            </p>
+
+            <button type="button" class="auth-button kindo-signin-button" id="openKindoSignInDrawer">
+                Sign in with Kindo Account
+            </button>
+            <button type="button" class="auth-button google-signin-button">
+                <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
+                Sign in with Google
+            </button>
+        </div>
+
+        <div class="drawer-overlay" id="drawerOverlay"></div>
+        <div class="drawer" id="kindoSignInDrawer">
+            <div class="drawer-header">
+                <h3 class="drawer-title">Sign in with Kindo account</h3>
+                <button class="close-drawer-button" id="closeKindoSignInDrawer" aria-label="Đóng">×</button>
+            </div>
+            <form id="kindoLoginForm">
+                <div class="input-group">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    <input type="email" id="kindoEmail" class="input-field" placeholder="Please enter your email" required>
+                </div>
+                <div class="input-group">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                    <input type="password" id="kindoPassword" class="input-field" placeholder="Please enter your password" required>
+                    <svg class="password-toggle-icon" id="passwordToggle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                </div>
+                <div class="options-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="staySignedIn">
+                        Stay Signed in
+                    </label>
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="rememberUserId">
+                        Remember User ID
+                    </label>
+                </div>
+                <button type="submit" class="drawer-button">Log in</button>
+                <div class="drawer-links">
+                    <a href="#">Forgot your ID or Password?</a>
+                    <span style="color: #D1D5DB;">|</span>
+                    <a href="#">Register</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const openKindoSignInDrawerButton = document.getElementById('openKindoSignInDrawer');
+        const kindoSignInDrawer = document.getElementById('kindoSignInDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        const closeKindoSignInDrawerButton = document.getElementById('closeKindoSignInDrawer');
+        const kindoPasswordInput = document.getElementById('kindoPassword');
+        const passwordToggleIcon = document.getElementById('passwordToggle');
+        const kindoLoginForm = document.getElementById('kindoLoginForm');
+
+        function openDrawer() {
+            kindoSignInDrawer.classList.add('active');
+            drawerOverlay.classList.add('active');
+        }
+
+        function closeDrawer() {
+            kindoSignInDrawer.classList.remove('active');
+            drawerOverlay.classList.remove('active');
+        }
+
+        openKindoSignInDrawerButton.addEventListener('click', openDrawer);
+        closeKindoSignInDrawerButton.addEventListener('click', closeDrawer);
+        drawerOverlay.addEventListener('click', closeDrawer); 
+
+        passwordToggleIcon.addEventListener('click', () => {
+            const type = kindoPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            kindoPasswordInput.setAttribute('type', type);
+            if (type === 'password') {
+                passwordToggleIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />`;
+            } else {
+                passwordToggleIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 01-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L6.228 6.228" />`;
+            }
+        });
+
+        kindoLoginForm.addEventListener('submit', (event) => {
+            event.preventDefault(); 
+            console.log('Nút Log in trong drawer đã được nhấp! Chuyển đến trang cá nhân hóa.');
+            window.location.href = "personalize_welcome.html"; 
+        });
+
+    </script>
+</body>
+</html>
