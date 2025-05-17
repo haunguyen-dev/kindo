@@ -12,7 +12,7 @@
             background-color: #f0f2f5;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -22,7 +22,7 @@
         .device-frame {
             width: 100%;
             max-width: 414px; 
-            height: 100vh;
+            height: 100dvh;
             max-height: 896px; 
             background-color: #FEFEFE; 
             position: relative;
@@ -31,6 +31,13 @@
             display: flex; 
             flex-direction: column;
             border-radius: 38px; 
+        }
+        
+        @media only screen and (max-width:1080px) {
+            .device-frame {
+                max-width: none;
+                max-height: none;
+            }
         }
 
         .slider-container {
